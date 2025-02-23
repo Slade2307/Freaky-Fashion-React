@@ -74,13 +74,13 @@
             <% products.forEach(function(product) { %>
                 <div class="product-item">
                     <div class="badge">NYHET</div>
-                    <a href="/product-details.html">
+                    <a href="<%= '/product/' + product.slug %>">
                         <img src="<%= product.image %>" alt="<%= product.title %>">
                     </a>
                     <div class="wishlist-icon" onclick="toggleHeartIcon(this)">
                         <img src="/images/heart.png" alt="wishlist">
                     </div>
-
+    
                     <div class="product-details">
                         <div class="product-title-price">
                             <span class="product-title"><%= product.title %></span>
@@ -92,6 +92,7 @@
             <% }) %>
         </div>
     </section>
+    
 
     <!-- Guarantees Icon Wrapper -->
     <div class="footer-icons">

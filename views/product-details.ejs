@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= product.title %> - Freaky Fashion</title>
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+</head>
+
+<body>
+  <header>
+    <a href="/">
+        <div class="logo-container">
+            <img src="/images/fashion-dude.png" alt="Freaky Fashion Logo" class="logo">
+        </div>
+    </a>
+
+    <div class="search-container">
+        <form class="search-form">
+            <input type="text" placeholder="Search..." class="search-input">
+            <button type="submit" class="search-button">Search</button>
+        </form>
+        <div class="icons">
+            <img src="/images/heart.png" alt="Favorites" class="icon">
+            <img src="/images/shopping-cart.png" alt="Cart" class="icon">
+        </div>
+    </div>
+</header>
+    
+<nav>
+  <ul>
+      <li><a href="/#home">Nyheter</a></li>
+      <li><a href="/#about">Kategorier</a></li>
+      <li><a href="/#contact">Topplistan</a></li>
+      <li><a href="/#contact">Rea</a></li>
+      <li><a href="/#contact">Kampanjer</a></li>
+  </ul>
+</nav>
+
+<!-- Product Details Section -->
+<section id="product-details">
+  <div class="product-details-container">
+      <div class="product-image">
+          <img src="<%= product.image %>" alt="<%= product.title %>">
+      </div>
+      <div class="product-info">
+          <h1 class="product-title"><%= product.title %></h1>
+          <p class="product-price">$<%= product.price %></p>
+          <button class="add-to-cart-button">Lägg i varukorg</button>
+      </div>
+  </div>
+</section>
+
+<!-- Similar Products Section -->
+<section id="similar-products">
+  <h2>Liknande produkter</h2>
+  <div class="similar-products-container">
+      <% similarProducts.forEach(function(similarProduct) { %>
+          <div class="similar-product-item">
+              <a href="/product/<%= similarProduct.slug %>">
+                  <img src="<%= similarProduct.image %>" alt="<%= similarProduct.title %>">
+              </a>
+              <div class="similar-product-details">
+                  <h3 class="similar-product-title"><%= similarProduct.title %></h3>
+                  <p class="similar-product-price">$<%= similarProduct.price %></p>
+              </div>
+          </div>
+      <% }); %>
+  </div>
+</section>
+
+<footer class="footer">
+    <div class="footer-container">
+        <!-- Accordion Wrapper -->
+        <div class="footer-accordion">
+            <!-- Shopping Section -->
+            <div class="accordion-item">
+                <button class="accordion-header" aria-expanded="false" aria-controls="shopping-content" id="shopping-header">Shopping</button>
+                <div class="accordion-content" id="shopping-content" aria-labelledby="shopping-header">
+                    <ul>
+                        <li><a href="#">Vinterjackor</a></li>
+                        <li><a href="#">Pufferjackor</a></li>
+                        <li><a href="#">Kappa</a></li>
+                        <li><a href="#">Trenchcoats</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Mina Sidor Section -->
+            <div class="accordion-item">
+                <button class="accordion-header" aria-expanded="false" aria-controls="mina-sidor-content" id="mina-sidor-header">Mina Sidor</button>
+                <div class="accordion-content" id="mina-sidor-content" aria-labelledby="mina-sidor-header">
+                    <ul>
+                        <li><a href="#">Mina Ordrar</a></li>
+                        <li><a href="#">Mitt Konto</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Kundtjänst Section -->
+            <div class="accordion-item">
+                <button class="accordion-header" aria-expanded="false" aria-controls="kundtjanst-content" id="kundtjanst-header">Kundtjänst</button>
+                <div class="accordion-content" id="kundtjanst-content" aria-labelledby="kundtjanst-header">
+                    <ul>
+                        <li><a href="#">Returpolicy</a></li>
+                        <li><a href="#">Integritetspolicy</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Regular Footer Sections for Larger Screens -->
+        <div class="footer-sections">
+            <!-- Shopping Section -->
+            <div class="shopping-section">
+                <h3>Shopping</h3>
+                <ul>
+                    <li><a href="#">Vinterjackor</a></li>
+                    <li><a href="#">Pufferjackor</a></li>
+                    <li><a href="#">Kappa</a></li>
+                    <li><a href="#">Trenchcoats</a></li>
+                </ul>
+            </div>
+
+            <!-- Mina Sidor Section -->
+            <div class="mina-sidor-section">
+                <h3>Mina Sidor</h3>
+                <ul>
+                    <li><a href="#">Mina Ordrar</a></li>
+                    <li><a href="#">Mitt Konto</a></li>
+                </ul>
+            </div>
+
+            <!-- Kundtjänst Section -->
+            <div class="kundtjanst-section">
+                <h3>Kundtjänst</h3>
+                <ul>
+                    <li><a href="#">Returpolicy</a></li>
+                    <li><a href="#">Integritetspolicy</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <p class="footer-copyright">&copy; 2024 Freaky Fashion</p>
+</footer>
+
+<script src="/javascripts/wishlist.js"></script>
+<script src="/javascripts/accordion.js"></script>   
+</body>
+</html>
