@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Ny Produkt</title>
+    <link rel="stylesheet" href="/public/stylesheets/styles.css">
+    <style>
+        /* Basic styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Main container with sidebar and content */
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            color: white;
+            padding: 20px;
+        }
+
+        .sidebar h2 {
+            margin: 0 0 20px 0;
+            font-size: 22px;
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Content area styles */
+        .content {
+            flex: 1;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        .content h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        /* Form styles */
+        form {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 15px;
+        }
+
+        label {
+            align-self: center;
+            font-weight: bold;
+        }
+
+        input[type="text"], input[type="file"], input[type="number"], textarea {
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+        }
+
+        textarea {
+            resize: none;
+            height: 100px;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        .form-section {
+            grid-column: 1 / -1;
+            margin-top: 10px;
+        }
+
+        .add-product-btn {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            grid-column: 1 / -1;
+            justify-self: start;
+        }
+
+        .add-product-btn:hover {
+            background-color: #555;
+        }
+
+        /* Optional styling for form */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        /* Media Queries for responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                text-align: center;
+            }
+
+            form {
+                grid-template-columns: 1fr; /* Stack labels and inputs */
+            }
+
+            .add-product-btn {
+                justify-self: center; /* Center the button on smaller screens */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content h1 {
+                font-size: 20px;
+            }
+
+            label, input, textarea {
+                font-size: 14px;
+            }
+
+            .add-product-btn {
+                width: 100%; /* Make the button full width */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Administration</h2>
+            <ul>
+                <li><a href="/admin/products">Produkter</a></li>
+            </ul>
+        </div>
+
+        <!-- Main content -->
+        <div class="content">
+            <h1>Ny produkt</h1>
+
+            <!-- New Product Form -->
+            <form id="product-form" onsubmit="submitForm(event)">
+                <!-- Product Name -->
+                <label for="name">Namn</label>
+                <input type="text" id="name" name="name" required>
+
+                <!-- Product Description -->
+                <label for="description">Beskrivning</label>
+                <textarea id="description" name="description" placeholder="Beskriv produkten..." required></textarea>
+
+                <!-- Product Image URL -->
+                <label for="image">Bild</label>
+                <input type="text" id="image" name="image" placeholder="URL till bild" required>
+
+                <!-- Product Brand -->
+                <label for="brand">Märke</label>
+                <input type="text" id="brand" name="brand" required>
+
+                <!-- Product SKU -->
+                <label for="sku">SKU</label>
+                <input type="text" id="sku" name="sku" required>
+
+                <!-- Product Price -->
+                <label for="price">Pris</label>
+                <input type="number" id="price" name="price" required>
+
+                <!-- Categories Section -->
+                <div class="form-section">
+                    <label>Kategorier</label>
+                    <div>
+                        <input type="checkbox" id="tshirts" name="categories[]" value="T-Shirts">
+                        <label for="tshirts">T-Shirts</label><br>
+
+                        <input type="checkbox" id="sommar" name="categories[]" value="Sommar">
+                        <label for="sommar">Sommar</label><br>
+
+                        <input type="checkbox" id="byxor" name="categories[]" value="Byxor">
+                        <label for="byxor">Byxor</label><br>
+
+                        <input type="checkbox" id="skor" name="categories[]" value="Skor">
+                        <label for="skor">Skor</label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="add-product-btn">Lägg till</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        async function submitForm(event) {
+            event.preventDefault(); // Prevent traditional form submission
+
+            // Gather form data
+            const formData = {
+                name: document.getElementById('name').value.trim(),
+                description: document.getElementById('description').value.trim(),
+                image: document.getElementById('image').value.trim(),
+                brand: document.getElementById('brand').value.trim(),
+                sku: document.getElementById('sku').value.trim(),
+                price: parseFloat(document.getElementById('price').value.trim()),
+                categories: Array.from(
+                    document.querySelectorAll('input[name="categories[]"]:checked')
+                ).map(input => input.value.trim())
+            };
+
+            try {
+                // Send POST request to the backend
+                const response = await fetch('/admin/products', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    // Redirect to product list after success
+                    window.location.href = '/admin/products';
+                } else {
+                    console.error('Failed to add product:', response.statusText);
+                    alert('Kunde inte lägga till produkten. Kontrollera din input.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Ett fel uppstod när produkten skulle läggas till.');
+            }
+        }
+    </script>
+</body>
+
+</html>

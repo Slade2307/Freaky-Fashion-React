@@ -2,9 +2,15 @@
   "name": "express-routes",
   "version": "0.0.0",
   "private": true,
+<<<<<<< HEAD
 "scripts": {
   "start": "node app.js"
 },
+=======
+  "scripts": {
+    "start": "node app.js"
+  },
+>>>>>>> 899ac96f48ee06a730cb707a43945c9b24c1f5d4
   "dependencies": {
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",

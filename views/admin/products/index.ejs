@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Produkter</title>
+    <link rel="stylesheet" href="/public/stylesheets/styles.css">
+    <style>
+        /* Basic styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Main container with sidebar and content */
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            color: white;
+            padding: 20px;
+        }
+
+        .sidebar h2 {
+            margin: 0 0 20px 0;
+            font-size: 22px;
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Content area styles */
+        .content {
+            flex: 1;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        .content h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        /* Button styles */
+        .button-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .load-products-btn, .new-product-btn {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        .new-product-btn:hover, .load-products-btn:hover {
+            background-color: #555;
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Administration</h2>
+            <ul>
+                <li><a href="#">Produkter</a></li>
+            </ul>
+        </div>
+
+        <!-- Main content -->
+        <div class="content">
+            <h1>Produkter</h1>
+
+            <!-- Buttons -->
+            <div class="button-container">
+                <button class="load-products-btn" onclick="loadProducts()">Ladda produkter</button>
+                <a href="/admin/products/new">
+                    <button class="new-product-btn">Ny produkt</button>
+                </a>
+            </div>
+
+            <!-- Products Table -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Namn</th>
+                        <th>SKU</th>
+                        <th>Pris</th>
+                    </tr>
+                </thead>
+                <tbody id="product-list">
+                   
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Function to load products using Fetch API
+        function loadProducts() {
+            fetch('/admin/products/api') // Fetch products from an API endpoint
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const productList = document.getElementById('product-list');
+                    productList.innerHTML = ''; // Clear existing table rows
+
+                    if (data.length > 0) {
+                        data.forEach(product => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${product.title}</td>
+                                <td>${product.SKU}</td>
+                                <td>${product.price}</td>
+                            `;
+                            productList.appendChild(row);
+                        });
+                    } else {
+                        productList.innerHTML = '<tr><td colspan="3">Ladda dina produkter...</td></tr>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching products:', error);
+                });
+        }
+    </script>
+</body>
+</html>
