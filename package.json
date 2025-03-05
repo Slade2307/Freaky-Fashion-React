@@ -2,15 +2,10 @@
   "name": "express-routes",
   "version": "0.0.0",
   "private": true,
-<<<<<<< HEAD
-"scripts": {
-  "start": "node app.js"
-},
-=======
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "dev": "ts-node src/app.ts"
   },
->>>>>>> 899ac96f48ee06a730cb707a43945c9b24c1f5d4
   "dependencies": {
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
@@ -20,5 +15,10 @@
     "morgan": "~1.9.1",
     "nodemon": "^3.1.7",
     "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/sqlite3": "^5.1.0",
+    "ts-node": "^10.9.2"
   }
 }
