@@ -15,7 +15,9 @@
   <section id="product-details">
     <div class="product-details-container">
         <div class="product-image">
-            <img src="<%= product.image %>" alt="<%= product.title %>">
+            <img src="/<%= product.image %>" alt="<%= product.title %>">
+
+
         </div>
         <div class="product-info">
             <h1 class="product-title"><%= product.title %></h1>
@@ -32,7 +34,7 @@
         <% similarProducts.forEach(function(similarProduct) { %>
             <div class="similar-product-item">
                 <a href="/product/<%= similarProduct.slug %>">
-                    <img src="<%= similarProduct.image %>" alt="<%= similarProduct.title %>">
+                    <img src="/<%= similarProduct.image %>" alt="<%= similarProduct.title %>">
                 </a>
                 <div class="similar-product-details">
                     <h3 class="similar-product-title"><%= similarProduct.title %></h3>
