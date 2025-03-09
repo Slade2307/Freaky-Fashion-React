@@ -18,7 +18,12 @@ const Home = () => {
   // Fetch products from the backend
   useEffect(() => {
     fetch("http://localhost:3000/api/products") // Adjust the URL to your backend API
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
       .then((data: Product[]) => setProducts(data)) // ✅ Type assertion for fetched data
       .catch((error) => console.error("Error fetching products:", error));
   }, []);

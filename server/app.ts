@@ -2,7 +2,6 @@ import express, { Request, Response, NextFunction } from "express";
 import path from "path";
 import sqlite3 from "sqlite3";
 import cors from "cors"; // Enable CORS for React requests
-import productRoutes from "./routes/products"; // Import product routes
 import adminRoutes from "./routes/admin"; // Import admin routes
 
 const app = express();
@@ -16,7 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ✅ Connect to SQLite database with proper error handling
-const db = new sqlite3.Database(path.join(__dirname, "../db/products.db"), (err) => {
+const db = new sqlite3.Database(path.join(__dirname, "../db/products.db"), (err: Error | null) => {
   if (err) {
     console.error("❌ Error opening database:", err.message);
   } else {
@@ -24,18 +23,18 @@ const db = new sqlite3.Database(path.join(__dirname, "../db/products.db"), (err)
   }
 });
 
-// ✅ API Route for Fetching All Products
+// ✅ API Route for Fetching All Products (Directly in app.ts)
 app.get("/api/products", (req: Request, res: Response) => {
   const sql = "SELECT * FROM products";
 
-  db.all(sql, [], (err, rows) => {
+  db.all(sql, [], (err: Error | null, rows: any[]) => {
     if (err) {
       console.error("❌ Database Error:", err.message);
       return res.status(500).json({ error: "Failed to fetch products" });
     }
-
+    
     // ✅ Fix Image Path for Frontend
-    const updatedRows = rows.map((product) => ({
+    const updatedRows = rows.map((product: any) => ({
       ...product,
       image: product.image.replace(/\\/g, "/"), // Fix backslashes in image paths
     }));
@@ -53,7 +52,7 @@ const buildPath = path.join(__dirname, "../todo/dist"); // Make sure this path e
 app.use(express.static(buildPath));
 
 // ✅ Catch-All Route (For React Frontend)
-app.get("*", (req, res) => {
+app.get("*", (req: Request, res: Response) => {
   res.sendFile(path.join(buildPath, "index.html"));
 });
 
@@ -66,7 +65,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // ✅ Graceful shutdown to close database connection
 process.on("SIGINT", () => {
   console.log("🚦 Shutting down server...");
-  db.close((err) => {
+  db.close((err: Error | null) => {
     if (err) {
       console.error("❌ Error closing the database:", err.message);
     } else {
