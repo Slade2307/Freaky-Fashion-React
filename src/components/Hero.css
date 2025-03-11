@@ -1,0 +1,28 @@
+/* Hero.css */
+
+.hero {
+    padding: 2rem;
+    background-color: #fafafa;
+    text-align: center;
+  }
+  
+  .hero h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .hero p {
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+  }
+  
+  .hero-image {
+    width: 100%;
+    height: 300px;
+    background-color: #ddd; /* Placeholder for your hero image */
+    margin: 0 auto;
+    max-width: 800px;
+  }
+  

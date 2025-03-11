@@ -1,0 +1,40 @@
+/* Header.css */
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background-color: #f0f0f0;
+  }
+  
+  .nav-bar ul {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .nav-bar li {
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  .search-bar {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .search-bar input {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    outline: none;
+  }
+  
+  .search-bar button {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border: none;
+    background-color: #333;
+    color: #fff;
+  }
+  
