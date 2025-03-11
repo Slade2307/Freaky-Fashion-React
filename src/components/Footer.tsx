@@ -1,4 +1,6 @@
-import React from "react";
+// Remove or comment out this line if you're not directly using React
+// import React from "react";
+
 import "./Footer.css";
 
 function Footer() {
