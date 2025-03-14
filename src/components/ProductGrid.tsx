@@ -1,3 +1,4 @@
+// ProductGrid.tsx
 import React from "react";
 import "./ProductGrid.css";
 
@@ -15,10 +16,19 @@ const mockProducts: Product[] = [
   // Add more products...
 ];
 
-function ProductGrid() {
+type ProductGridProps = {
+  searchTerm: string;
+};
+
+function ProductGrid({ searchTerm }: ProductGridProps) {
+  // Filter products based on search term (case-insensitive)
+  const filteredProducts = mockProducts.filter((product) =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <section className="product-grid">
-      {mockProducts.map((product) => (
+      {filteredProducts.map((product) => (
         <div key={product.id} className="product-card">
           <div className="product-image">
             {/* Replace with <img src={product.imageUrl} alt={product.name} /> */}

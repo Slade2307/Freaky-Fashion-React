@@ -1,3 +1,19 @@
+/* App.css */
+
+/* Global Resets */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #fff;
+  color: #333;
+}
+
+/* Global container styles for centering content */
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -5,15 +21,18 @@
   text-align: center;
 }
 
+/* Optional Logo Styles (from Vite Starter) */
 .logo {
   height: 6em;
   padding: 1.5em;
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
@@ -33,10 +52,23 @@
   }
 }
 
+/* Card styling (for any card elements in your app) */
 .card {
   padding: 2em;
 }
 
+/* Styling for documentation or auxiliary text */
 .read-the-docs {
   color: #888;
+}
+
+/* Additional global container for layout if needed */
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
 }
