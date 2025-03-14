@@ -28,14 +28,20 @@ function generateSlug(name: string): string {
 // GET /api/products - list all products.
 const getAllProducts: RequestHandler = async (req, res) => {
   try {
+    console.log("🛠️ GET /api/products request received.");
+
     const db = await initDB();
     const products = await db.all('SELECT * FROM products');
+
+    console.log("📦 Sending products:", products);
+
     res.json(products);
   } catch (error) {
-    console.error('Error fetching products:', error);
-    res.status(500).json({ error: 'Failed to fetch products' });
+    console.error("🚨 Error fetching products:", error);
+    res.status(500).json({ error: "Failed to fetch products" });
   }
 };
+
 
 // GET /api/products/:slug - get a single product by slug.
 const getProductBySlug: RequestHandler<{ slug: string }> = async (req, res) => {

@@ -7,7 +7,12 @@ const app = express();
 const PORT = 3000;
 
 // Enable CORS so the front end can make API requests
-app.use(cors());
+app.use(cors({
+  origin: "*",  // Allow requests from any frontend
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 
 // Parse JSON request bodies
 app.use(express.json());

@@ -26,20 +26,29 @@ function ProductsList() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/products');
+        console.log("🔍 Fetching products from backend...");
+        
+        const res = await fetch("http://127.0.0.1:3000/api/products", {
+          mode: "cors"
+        });
+  
+        console.log("✅ Response status:", res.status);
         if (!res.ok) {
-          throw new Error('Failed to fetch products');
+          throw new Error(`Failed to fetch products: ${res.status} ${res.statusText}`);
         }
+  
         const data: Product[] = await res.json();
+        console.log("📦 Received products:", data);
         setProducts(data);
-      } catch (err) {
-        console.error('Fetch error:', err);
-        setError('Error fetching products');
+      } catch (err: any) {
+        console.error("🚨 Fetch error:", err.message);
+        setError(`Error fetching products: ${err.message}`);
       } finally {
         setLoading(false);
       }
     })();
   }, []);
+  
 
   // Handle "Edit"
   function handleEdit(product: Product) {
