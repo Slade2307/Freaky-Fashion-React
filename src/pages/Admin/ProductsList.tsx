@@ -22,21 +22,18 @@ function ProductsList() {
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [editFormData, setEditFormData] = useState<Partial<Product>>({});
 
-  // Fetch products on mount with async/await
+  // Fetch products on mount
   useEffect(() => {
     (async () => {
       try {
         console.log("🔍 Fetching products from backend...");
-        
-        const res = await fetch("http://127.0.0.1:3000/api/products", {
-          mode: "cors"
-        });
-  
+        const res = await fetch("http://127.0.0.1:3000/api/products", { mode: "cors" });
         console.log("✅ Response status:", res.status);
+
         if (!res.ok) {
           throw new Error(`Failed to fetch products: ${res.status} ${res.statusText}`);
         }
-  
+
         const data: Product[] = await res.json();
         console.log("📦 Received products:", data);
         setProducts(data);
@@ -48,7 +45,6 @@ function ProductsList() {
       }
     })();
   }, []);
-  
 
   // Handle "Edit"
   function handleEdit(product: Product) {
@@ -121,6 +117,7 @@ function ProductsList() {
       <table>
         <thead>
           <tr>
+            <th>Thumbnail</th> {/* New column for the product thumbnail */}
             <th>ID</th>
             <th>Name</th>
             <th>SKU</th>
@@ -135,6 +132,19 @@ function ProductsList() {
             const isEditing = editingSlug === product.slug;
             return (
               <tr key={product.id}>
+                {/* Thumbnail column */}
+                <td>
+                  {product.imageUrl ? (
+                    <img
+                      src={product.imageUrl}
+                      alt={product.name}
+                      style={{ width: '50px', height: 'auto' }}
+                    />
+                  ) : (
+                    'No image'
+                  )}
+                </td>
+
                 <td>{product.id}</td>
                 <td>
                   {isEditing ? (

@@ -8,10 +8,12 @@ function NewProduct() {
     description: '',
     price: 0,
     sku: '',
-    imageUrl: '',
+    imageUrl: '', // used for external URL (optional)
     publishDate: '',
     slug: ''
   });
+  const [file, setFile] = useState<File | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string>(''); // State for error messages
 
   // Helper to create a slug if user leaves slug field blank
   const generateSlug = (name: string): string => {
@@ -23,55 +25,109 @@ function NewProduct() {
       .replace(/^-+|-+$/g, '');   // Trim leading/trailing hyphens
   };
 
-  // Handle form field changes
+  // Handle text input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Submit form with async/await for clearer error handling
+  // Handle file input changes
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg(''); // Clear any existing error
 
-    // Auto-generate slug if empty
-    let dataToSend = { ...formData };
-    if (!dataToSend.slug && dataToSend.name) {
-      dataToSend.slug = generateSlug(dataToSend.name);
+    // 1) Check if user provided BOTH imageUrl and file
+    if (file && formData.imageUrl.trim() !== '') {
+      setErrorMsg("Please choose either an external Image URL or upload a file, not both.");
+      return; // Stop submission
     }
 
-    try {
-      const response = await fetch('http://localhost:3000/api/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataToSend),
-      });
+    // Auto-generate slug if empty
+    let finalSlug = formData.slug;
+    if (!finalSlug && formData.name) {
+      finalSlug = generateSlug(formData.name);
+    }
 
-      if (!response.ok) {
-        throw new Error(`Failed to add product, status: ${response.status}`);
+    // If a file is selected, use FormData (multipart/form-data)
+    if (file) {
+      const form = new FormData();
+      form.append('name', formData.name);
+      form.append('description', formData.description);
+      form.append('price', String(formData.price));
+      form.append('sku', formData.sku);
+      form.append('publishDate', formData.publishDate);
+      form.append('slug', finalSlug || '');
+      // If user typed an external URL anyway (not recommended),
+      // we can still include it or ignore it. Let's include it:
+      form.append('imageUrl', formData.imageUrl);
+      form.append('imageFile', file);
+
+      try {
+        const response = await fetch('http://localhost:3000/api/products', {
+          method: 'POST',
+          body: form
+        });
+        if (!response.ok) {
+          throw new Error(`Failed to add product, status: ${response.status}`);
+        }
+        const newProduct = await response.json();
+        console.log('Product created:', newProduct);
+        // Clear form and file
+        setFormData({
+          name: '',
+          description: '',
+          price: 0,
+          sku: '',
+          imageUrl: '',
+          publishDate: '',
+          slug: ''
+        });
+        setFile(null);
+      } catch (err) {
+        console.error('Error adding product:', err);
+        setErrorMsg('Error adding product. See console for details.');
       }
-
-      const newProduct = await response.json();
-      console.log('Product created:', newProduct);
-
-      // Optionally clear the form
-      setFormData({
-        name: '',
-        description: '',
-        price: 0,
-        sku: '',
-        imageUrl: '',
-        publishDate: '',
-        slug: ''
-      });
-    } catch (err) {
-      console.error('Error adding product:', err);
-      alert('Error adding product. This may be due to a connection issue with the backend. See console for details.');
+    } else {
+      // No file uploaded; send JSON
+      const dataToSend = { ...formData, slug: finalSlug };
+      try {
+        const response = await fetch('http://localhost:3000/api/products', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dataToSend),
+        });
+        if (!response.ok) {
+          throw new Error(`Failed to add product, status: ${response.status}`);
+        }
+        const newProduct = await response.json();
+        console.log('Product created:', newProduct);
+        setFormData({
+          name: '',
+          description: '',
+          price: 0,
+          sku: '',
+          imageUrl: '',
+          publishDate: '',
+          slug: ''
+        });
+      } catch (err) {
+        console.error('Error adding product:', err);
+        setErrorMsg('Error adding product. See console for details.');
+      }
     }
   };
 
   return (
     <div className="new-product">
       <h2>Create New Product</h2>
+      {errorMsg && <div className="error-message" style={{ color: 'red' }}>{errorMsg}</div>}
       <form onSubmit={handleSubmit}>
         <label>
           Name (required):
@@ -118,6 +174,16 @@ function NewProduct() {
             name="imageUrl" 
             value={formData.imageUrl} 
             onChange={handleChange} 
+          />
+        </label>
+
+        <label>
+          Or Upload Image:
+          <input 
+            name="imageFile" 
+            type="file" 
+            accept="image/*" 
+            onChange={handleFileChange} 
           />
         </label>
 

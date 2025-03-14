@@ -8,7 +8,7 @@ type Product = {
   description: string;
   price: number;
   sku: string;
-  imageUrl: string;
+  imageUrl?: string; // Using imageUrl because backend aliases imagePath as imageUrl
   publishDate: string;
   slug: string;
 };
@@ -26,17 +26,12 @@ function ProductGrid({ searchTerm }: ProductGridProps) {
   useEffect(() => {
     (async () => {
       try {
-        console.log("🔍 Fetching products from:", "http://localhost:3000/api/products");
-  
-        const res = await fetch("http://127.0.0.1:3000/api/products", {
-          mode: "cors"
-        });
-  
+        console.log("🔍 Fetching products from http://localhost:3000/api/products");
+        const res = await fetch("http://localhost:3000/api/products", { mode: "cors" });
         console.log("✅ Response status:", res.status);
         if (!res.ok) {
           throw new Error(`Failed to fetch products: ${res.status} ${res.statusText}`);
         }
-  
         const data: Product[] = await res.json();
         console.log("📦 Fetched products:", data);
         setProducts(data);
@@ -49,11 +44,6 @@ function ProductGrid({ searchTerm }: ProductGridProps) {
       }
     })();
   }, []);
-  
-  
-  
-  
-  
 
   // Filter products based on search term (case-insensitive)
   const filteredProducts = products.filter((product) =>
@@ -70,15 +60,32 @@ function ProductGrid({ searchTerm }: ProductGridProps) {
 
   return (
     <section className="product-grid">
-      {filteredProducts.map((product) => (
-        <div key={product.id} className="product-card">
-          <div className="product-image">
-            <img src={product.imageUrl} alt={product.name} />
+      {filteredProducts.map((product) => {
+        // Build the final image source:
+        // - If product.imageUrl starts with "/product-images/", prepend the backend URL.
+        // - Otherwise, use product.imageUrl directly.
+        const imageSrc = product.imageUrl
+          ? product.imageUrl.startsWith('/product-images/')
+            ? `http://localhost:3000${product.imageUrl}`
+            : product.imageUrl
+          : "";
+
+        return (
+          <div key={product.id} className="product-card">
+            <div className="product-image">
+              {imageSrc ? (
+                <img src={imageSrc} alt={product.name} />
+              ) : (
+                <div style={{ backgroundColor: "#ccc", height: "100%" }}>
+                  No image
+                </div>
+              )}
+            </div>
+            <h2>{product.name}</h2>
+            <p>{product.price} SEK</p>
           </div>
-          <h2>{product.name}</h2>
-          <p>{product.price} SEK</p>
-        </div>
-      ))}
+        );
+      })}
     </section>
   );
 }

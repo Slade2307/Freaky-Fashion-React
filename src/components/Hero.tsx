@@ -1,5 +1,5 @@
-import React from "react";
-import "./Hero.css";
+// Hero.tsx
+import './Hero.css'; // or other imports
 
 function Hero() {
   return (

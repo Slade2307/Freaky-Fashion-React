@@ -1,4 +1,6 @@
-import { Router, Request, Response, RequestHandler } from 'express';
+import { Router, Request, Response } from 'express';
+import multer from 'multer';
+import path from 'path';
 import { initDB } from '../db';
 
 /**
@@ -10,60 +12,125 @@ interface ProductUpdateBody {
   description?: string;
   price?: number;
   sku?: string;
-  imageUrl?: string;
+  imageUrl?: string;   // The user might send an external URL here
+  imagePath?: string;  // We store final path in the DB
   publishDate?: string;
   slug?: string;
 }
+
+// Setup Multer storage to save uploaded files to "product-images" folder.
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'product-images');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  },
+});
+const upload = multer({ storage });
 
 // Helper function to generate a slug from a product name.
 function generateSlug(name: string): string {
   return name
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, '')    // Remove non-word characters
-    .replace(/[\s_-]+/g, '-')    // Replace spaces/underscores with a hyphen
-    .replace(/^-+|-+$/g, '');     // Trim leading/trailing hyphens
+    .replace(/[^\w\s-]/g, '') // Remove non-word characters
+    .replace(/[\s_-]+/g, '-') // Replace spaces/underscores with a single hyphen
+    .replace(/^-+|-+$/g, '');  // Trim leading/trailing hyphens
+}
+
+// Utility: Transform product's imagePath to a full URL if needed.
+function transformImageUrl(product: any): any {
+  if (product.imageUrl && product.imageUrl.startsWith('/product-images')) {
+    product.imageUrl = `http://localhost:3000${product.imageUrl}`;
+  }
+  return product;
 }
 
 // GET /api/products - list all products.
-const getAllProducts: RequestHandler = async (req, res) => {
+async function getAllProducts(req: Request, res: Response): Promise<void> {
   try {
-    console.log("🛠️ GET /api/products request received.");
-
     const db = await initDB();
-    const products = await db.all('SELECT * FROM products');
-
-    console.log("📦 Sending products:", products);
-
-    res.json(products);
+    // Alias imagePath as imageUrl so the frontend sees "imageUrl"
+    const products = await db.all(`
+      SELECT
+        id,
+        name,
+        description,
+        price,
+        sku,
+        publishDate,
+        slug,
+        imagePath AS imageUrl
+      FROM products
+    `);
+    // Transform each product's imageUrl if it's a local path.
+    const transformedProducts = products.map(transformImageUrl);
+    res.json(transformedProducts);
   } catch (error) {
-    console.error("🚨 Error fetching products:", error);
+    console.error("Error fetching products:", error);
     res.status(500).json({ error: "Failed to fetch products" });
   }
-};
-
+}
 
 // GET /api/products/:slug - get a single product by slug.
-const getProductBySlug: RequestHandler<{ slug: string }> = async (req, res) => {
+async function getProductBySlug(req: Request<{ slug: string }>, res: Response): Promise<void> {
   try {
     const { slug } = req.params;
     const db = await initDB();
-    const product = await db.get('SELECT * FROM products WHERE slug = ?', [slug]);
+    // Alias imagePath as imageUrl here as well.
+    let product = await db.get(`
+      SELECT
+        id,
+        name,
+        description,
+        price,
+        sku,
+        publishDate,
+        slug,
+        imagePath AS imageUrl
+      FROM products
+      WHERE slug = ?
+    `, [slug]);
     if (!product) {
       res.status(404).json({ error: 'Product not found' });
       return;
     }
+    product = transformImageUrl(product);
     res.json(product);
   } catch (error) {
     console.error('Error fetching product:', error);
     res.status(500).json({ error: 'Failed to fetch product' });
   }
-};
+}
 
 // POST /api/products - add a new product.
-const createProduct: RequestHandler<{}, any, ProductUpdateBody> = async (req, res) => {
+async function createProduct(req: Request<{}, any, ProductUpdateBody>, res: Response): Promise<void> {
   try {
-    let { name, description, price, sku, imageUrl, publishDate, slug } = req.body;
+    let {
+      name,
+      description,
+      price,
+      sku,
+      imageUrl,
+      publishDate,
+      slug
+    } = req.body;
+
+    // Decide final imagePath to store in the DB.
+    let finalImagePath = "";
+
+    // If a file was uploaded, use local path.
+    // @ts-ignore: req.file is added by Multer at runtime.
+    if (req.file) {
+      finalImagePath = "/product-images/" + req.file.filename;
+    }
+    // Else if user typed an external URL, use that.
+    else if (imageUrl && imageUrl.trim() !== "") {
+      finalImagePath = imageUrl.trim();
+    }
+
     if (!name) {
       res.status(400).json({ error: 'Name is required' });
       return;
@@ -72,29 +139,63 @@ const createProduct: RequestHandler<{}, any, ProductUpdateBody> = async (req, re
     if (!slug) {
       slug = generateSlug(name);
     }
+
     const db = await initDB();
     const result = await db.run(
-      `INSERT INTO products (name, description, price, sku, imageUrl, publishDate, slug)
+      `INSERT INTO products (name, description, price, sku, imagePath, publishDate, slug)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [name, description, price, sku, imageUrl, publishDate, slug]
+      [name, description || "", price || 0, sku || "", finalImagePath, publishDate || "", slug]
     );
     const newProductId = result.lastID;
-    const newProduct = await db.get('SELECT * FROM products WHERE id = ?', [newProductId]);
+
+    // Return the newly inserted product, aliasing imagePath as imageUrl.
+    let newProduct = await db.get(`
+      SELECT
+        id,
+        name,
+        description,
+        price,
+        sku,
+        publishDate,
+        slug,
+        imagePath AS imageUrl
+      FROM products
+      WHERE id = ?
+    `, [newProductId]);
+
+    newProduct = transformImageUrl(newProduct);
     res.status(201).json(newProduct);
   } catch (error) {
     console.error('Error adding product:', error);
     res.status(500).json({ error: 'Failed to add product' });
   }
-};
+}
 
-// PUT /api/products/:slug - update an existing product by slug.
-const updateProductBySlug: RequestHandler<{ slug: string }, any, ProductUpdateBody> = async (
-  req,
-  res
-) => {
+// Wrap the createProduct route with Multer middleware to handle file uploads.
+const createProductWithUpload = [upload.single('imageFile'), createProduct];
+
+// PUT /api/products/:slug - update an existing product by slug (JSON body only).
+async function updateProductBySlug(
+  req: Request<{ slug: string }, any, ProductUpdateBody>,
+  res: Response
+): Promise<void> {
   try {
     const { slug } = req.params;
-    const { name, description, price, sku, imageUrl, publishDate } = req.body;
+    const {
+      name,
+      description,
+      price,
+      sku,
+      imageUrl,
+      publishDate
+    } = req.body;
+
+    // If user sends a new external URL, store that in imagePath.
+    let finalImagePath = "";
+    if (imageUrl && imageUrl.trim() !== "") {
+      finalImagePath = imageUrl.trim();
+    }
+
     const db = await initDB();
     const result = await db.run(
       `UPDATE products
@@ -102,25 +203,50 @@ const updateProductBySlug: RequestHandler<{ slug: string }, any, ProductUpdateBo
            description = COALESCE(?, description),
            price = COALESCE(?, price),
            sku = COALESCE(?, sku),
-           imageUrl = COALESCE(?, imageUrl),
+           imagePath = CASE WHEN ? != '' THEN ? ELSE imagePath END,
            publishDate = COALESCE(?, publishDate)
        WHERE slug = ?`,
-      [name, description, price, sku, imageUrl, publishDate, slug]
+      [
+        name,
+        description,
+        price,
+        sku,
+        finalImagePath, // condition
+        finalImagePath, // new value
+        publishDate,
+        slug
+      ]
     );
+
     if (result.changes === 0) {
       res.status(404).json({ error: 'Product not found or no changes made' });
       return;
     }
-    const updatedProduct = await db.get('SELECT * FROM products WHERE slug = ?', [slug]);
+
+    let updatedProduct = await db.get(`
+      SELECT
+        id,
+        name,
+        description,
+        price,
+        sku,
+        publishDate,
+        slug,
+        imagePath AS imageUrl
+      FROM products
+      WHERE slug = ?
+    `, [slug]);
+
+    updatedProduct = transformImageUrl(updatedProduct);
     res.json(updatedProduct);
   } catch (error) {
     console.error('Error updating product:', error);
     res.status(500).json({ error: 'Failed to update product' });
   }
-};
+}
 
 // DELETE /api/products/:slug - delete a product by slug.
-const deleteProductBySlug: RequestHandler<{ slug: string }> = async (req, res) => {
+async function deleteProductBySlug(req: Request<{ slug: string }>, res: Response): Promise<void> {
   try {
     const { slug } = req.params;
     const db = await initDB();
@@ -134,13 +260,12 @@ const deleteProductBySlug: RequestHandler<{ slug: string }> = async (req, res) =
     console.error('Error deleting product:', error);
     res.status(500).json({ error: 'Failed to delete product' });
   }
-};
+}
 
-// Assemble and mount all route handlers.
 const router = Router();
 router.get('/', getAllProducts);
 router.get('/:slug', getProductBySlug);
-router.post('/', createProduct);
+router.post('/', ...createProductWithUpload);
 router.put('/:slug', updateProductBySlug);
 router.delete('/:slug', deleteProductBySlug);
 
