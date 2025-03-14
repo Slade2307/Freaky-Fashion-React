@@ -1,29 +1,46 @@
 // App.tsx
-
-// 1) Import useState from React
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useState } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import ProductGrid from './components/ProductGrid';
 import Footer from './components/Footer';
+
+// Import your admin pages
+import ProductsList from './pages/Admin/ProductsList';
+import NewProduct from './pages/Admin/NewProduct';
+
 import './App.css';
 
 function App() {
-  // 2) Create a state for the search term
+  // Maintain search state for filtering products on the home page
   const [searchTerm, setSearchTerm] = useState('');
 
   return (
-    <>
-      {/* 3) Pass searchTerm and setSearchTerm to Header */}
-      <Header searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+    <Routes>
+      {/* HOME ROUTE */}
+      <Route
+        path="/"
+        element={
+          <>
+            <Header searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+            <Hero />
+            <ProductGrid searchTerm={searchTerm} />
+            <Footer />
+          </>
+        }
+      />
 
-      <Hero />
+      {/* REDIRECT /admin TO /admin/products */}
+      <Route path="/admin" element={<Navigate to="/admin/products" replace />} />
 
-      {/* 4) Pass searchTerm to ProductGrid so it can filter products */}
-      <ProductGrid searchTerm={searchTerm} />
+      {/* ADMIN ROUTES */}
+      <Route path="/admin/products" element={<ProductsList />} />
+      <Route path="/admin/product/new" element={<NewProduct />} />
 
-      <Footer />
-    </>
+      {/* OPTIONAL: 404 Not Found Route */}
+      <Route path="*" element={<div>Page not found</div>} />
+    </Routes>
   );
 }
 

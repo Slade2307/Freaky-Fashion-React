@@ -1,38 +1,65 @@
 // ProductGrid.tsx
-import React from "react";
+import { useEffect, useState } from "react";
 import "./ProductGrid.css";
 
 type Product = {
   id: number;
   name: string;
+  description: string;
   price: number;
+  sku: string;
   imageUrl: string;
+  publishDate: string;
+  slug: string;
 };
-
-const mockProducts: Product[] = [
-  { id: 1, name: "Svart T-shirt", price: 99, imageUrl: "path-to-img" },
-  { id: 2, name: "Vit T-shirt", price: 99, imageUrl: "path-to-img" },
-  { id: 3, name: "Blå T-shirt", price: 99, imageUrl: "path-to-img" },
-  // Add more products...
-];
 
 type ProductGridProps = {
   searchTerm: string;
 };
 
 function ProductGrid({ searchTerm }: ProductGridProps) {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
+
+  // Fetch products from the backend on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/products");
+        if (!res.ok) {
+          throw new Error("Failed to fetch products");
+        }
+        const data: Product[] = await res.json();
+        setProducts(data);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        setError("Error fetching products");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
   // Filter products based on search term (case-insensitive)
-  const filteredProducts = mockProducts.filter((product) =>
+  const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (loading) {
+    return <section className="product-grid">Loading products...</section>;
+  }
+
+  if (error) {
+    return <section className="product-grid">{error}</section>;
+  }
 
   return (
     <section className="product-grid">
       {filteredProducts.map((product) => (
         <div key={product.id} className="product-card">
           <div className="product-image">
-            {/* Replace with <img src={product.imageUrl} alt={product.name} /> */}
-            [Image Placeholder]
+            <img src={product.imageUrl} alt={product.name} />
           </div>
           <h2>{product.name}</h2>
           <p>{product.price} SEK</p>
