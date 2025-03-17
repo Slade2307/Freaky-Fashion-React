@@ -8,6 +8,12 @@
   margin: 0 auto;
 }
 
+/* NEW: Remove default link styles for product links */
+.product-link {
+  text-decoration: none;
+  color: inherit;
+}
+
 .product-card {
   border: 1px solid #ffffff;
   padding: 1rem;

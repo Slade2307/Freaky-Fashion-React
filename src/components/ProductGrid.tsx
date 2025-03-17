@@ -1,5 +1,6 @@
 // src/components/ProductGrid.tsx 
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom"; // NEW: Import Link for navigation
 import { useCart } from "../pages/Cart/CartContext";
 import "./ProductGrid.css";
 
@@ -76,16 +77,18 @@ function ProductGrid({ searchTerm }: ProductGridProps) {
 
         return (
           <div key={product.id} className="product-card">
-            <div className="product-image">
-              {imageSrc ? (
-                <img src={imageSrc} alt={product.name} />
-              ) : (
-                <div className="no-image">No image</div>
-              )}
-            </div>
-            <h2>{product.name}</h2>
+            {/* Wrap image and name in a Link to the product detail page */}
+            <Link to={`/product/${product.slug}`} className="product-link">
+              <div className="product-image">
+                {imageSrc ? (
+                  <img src={imageSrc} alt={product.name} />
+                ) : (
+                  <div className="no-image">No image</div>
+                )}
+              </div>
+              <h2>{product.name}</h2>
+            </Link>
             <p>{product.price} SEK</p>
-
             <button
               className={`add-to-cart-btn ${isAdded ? "added" : ""}`}
               onClick={() => handleAddToCart(product)}

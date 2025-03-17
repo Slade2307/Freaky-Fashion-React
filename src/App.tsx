@@ -14,6 +14,12 @@ import NewProduct from './pages/Admin/NewProduct';
 import Cart from './pages/Cart/Cart';
 import { CartProvider } from './pages/Cart/CartContext';
 
+// NEW: Import Checkout page
+import Checkout from './pages/Checkout/Checkout';
+
+// NEW: Import Product Detail page
+import ProductDetail from './pages/ProductDetail/ProductDetail';
+
 import './App.css';
 
 function App() {
@@ -45,6 +51,12 @@ function App() {
 
         {/* CART ROUTE */}
         <Route path="/cart" element={<Cart />} />
+        
+        {/* NEW: CHECKOUT ROUTE */}
+        <Route path="/checkout" element={<Checkout />} />
+
+        {/* NEW: PRODUCT DETAIL ROUTE */}
+        <Route path="/product/:slug" element={<ProductDetail />} />
 
         {/* OPTIONAL: 404 Not Found Route */}
         <Route path="*" element={<div>Page not found</div>} />
