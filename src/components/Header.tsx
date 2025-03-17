@@ -3,9 +3,12 @@ import { ChangeEvent } from "react";
 import { Link } from "react-router-dom";
 import "./Header.css";
 
-// Import FontAwesomeIcon and the shopping cart icon from Font Awesome
+// Font Awesome imports
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
+
+// Import your cart context hook
+import { useCart } from "../pages/Cart/CartContext";
 
 type HeaderProps = {
   searchTerm: string;
@@ -16,6 +19,12 @@ function Header({ searchTerm, onSearchChange }: HeaderProps) {
   const handleSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
     onSearchChange(e.target.value);
   };
+
+  // Destructure "cart" from your context
+  const { cart } = useCart();
+
+  // Calculate total quantity from each item's quantity in the cart.
+  const totalItems = cart.reduce((sum: number, item) => sum + item.quantity, 0);
 
   return (
     <header className="header">
@@ -38,9 +47,13 @@ function Header({ searchTerm, onSearchChange }: HeaderProps) {
           />
           <button>Search</button>
         </div>
+
         <div className="cart-link">
           <Link to="/cart" aria-label="Cart">
             <FontAwesomeIcon icon={faShoppingCart} size="2x" />
+            {totalItems > 0 && (
+              <span className="cart-count">{totalItems}</span>
+            )}
           </Link>
         </div>
       </div>

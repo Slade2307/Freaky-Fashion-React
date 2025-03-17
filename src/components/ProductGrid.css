@@ -1,5 +1,3 @@
-/* ProductGrid.css */
-
 /* Default: mobile-first - 1 column */
 .product-grid {
   display: grid;
@@ -23,7 +21,6 @@
   height: 150px;
   background-color: #ffffff;
   margin-bottom: 1rem;
-  /* Optional: add some padding around the image area */
   padding: 0.5rem;
   overflow: hidden;
 }
@@ -34,8 +31,6 @@
   object-fit: contain;
   display: block;
   margin: 0 auto;
-  /* Optional: if you want a border around the image itself */
-  /* border: 1px solid #ccc; */
 }
 
 .product-card h2 {
@@ -44,6 +39,37 @@
 
 .product-card p {
   font-weight: bold;
+}
+
+/* Button styling with rounded corners */
+.add-to-cart-btn {
+  background-color: #ffd814; /* Amazon-like yellow */
+  border: 1px solid #fcd200;
+  border-radius: 12px; /* Increased for more rounded corners */
+  color: #111;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.add-to-cart-btn:hover {
+  background-color: #f7ca00;
+}
+
+/* When the product was just added, button changes style */
+.add-to-cart-btn.added {
+  background-color: #d4f8d4; /* Light green background */
+  border-color: #2b7a2b;
+  color: #2b7a2b;
+}
+
+/* Checkmark style for added state */
+.checkmark {
+  margin-right: 0.5rem;
+  font-weight: bold;
+  color: #2b7a2b;
 }
 
 /* For tablet screens (768px and up): 2 columns */

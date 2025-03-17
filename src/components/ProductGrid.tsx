@@ -1,6 +1,6 @@
-// src/components/ProductGrid.tsx
+// src/components/ProductGrid.tsx 
 import { useEffect, useState } from "react";
-import { useCart } from "../pages/Cart/CartContext"; // Import cart context
+import { useCart } from "../pages/Cart/CartContext";
 import "./ProductGrid.css";
 
 type Product = {
@@ -20,33 +20,32 @@ type ProductGridProps = {
 
 function ProductGrid({ searchTerm }: ProductGridProps) {
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
-  const { addToCart } = useCart(); // Use the cart context
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [justAdded, setJustAdded] = useState<{ [key: number]: boolean }>({}); 
+  // Tracks which product IDs were recently added
 
-  // Fetch products from the backend on mount
+  const { addToCart } = useCart();
+
+  // Fetch products on mount
   useEffect(() => {
     (async () => {
       try {
-        console.log("🔍 Fetching products from http://localhost:3000/api/products");
         const res = await fetch("http://localhost:3000/api/products", { mode: "cors" });
-
         if (!res.ok) {
           throw new Error(`Failed to fetch products: ${res.status} ${res.statusText}`);
         }
-
         const data: Product[] = await res.json();
         setProducts(data);
       } catch (err: any) {
-        console.error("🚨 Error fetching products:", err.message);
-        setError(`Error fetching products: ${err.message}`);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
-  // Filter products based on search term (case-insensitive)
+  // Filter by search term
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -54,13 +53,26 @@ function ProductGrid({ searchTerm }: ProductGridProps) {
   if (loading) return <section className="product-grid">Loading products...</section>;
   if (error) return <section className="product-grid">{error}</section>;
 
+  // Handle the "add to cart" click. Each click adds an extra quantity of 1.
+  const handleAddToCart = (product: Product) => {
+    addToCart({ ...product, quantity: 1 });
+    setJustAdded((prev) => ({ ...prev, [product.id]: true }));
+
+    // Revert visual feedback after 2 seconds
+    setTimeout(() => {
+      setJustAdded((prev) => ({ ...prev, [product.id]: false }));
+    }, 2000);
+  };
+
   return (
     <section className="product-grid">
       {filteredProducts.map((product) => {
-        // Ensure correct image URL (local and external)
+        // Ensure correct local vs external image path
         const imageSrc = product.imageUrl?.startsWith("/product-images/")
           ? `http://localhost:3000${product.imageUrl}`
           : product.imageUrl || "";
+
+        const isAdded = justAdded[product.id];
 
         return (
           <div key={product.id} className="product-card">
@@ -73,13 +85,19 @@ function ProductGrid({ searchTerm }: ProductGridProps) {
             </div>
             <h2>{product.name}</h2>
             <p>{product.price} SEK</p>
-            <button
-                className="add-to-cart-btn"
-                onClick={() => addToCart({ ...product, quantity: 1 })} // Fix: Add quantity
-              >
-                Lägg i varukorg
-              </button>
 
+            <button
+              className={`add-to-cart-btn ${isAdded ? "added" : ""}`}
+              onClick={() => handleAddToCart(product)}
+            >
+              {isAdded ? (
+                <>
+                  <span className="checkmark">✔</span> Tillagd i kundvagn
+                </>
+              ) : (
+                "Lägg i varukorg"
+              )}
+            </button>
           </div>
         );
       })}

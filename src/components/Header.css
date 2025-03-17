@@ -50,6 +50,7 @@
 
 /* Cart Icon Link */
 .cart-link {
+  position: relative; /* Needed for .cart-count to be positioned absolutely */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -71,4 +72,20 @@
 .cart-link a:hover i,
 .cart-link a:hover svg {
   color: #000; /* darker on hover */
+}
+
+/* Cart count bubble */
+.cart-count {
+  position: absolute;
+  top: -10px;       /* position the bubble above the icon */
+  right: -10px;     /* position the bubble to the right of the icon */
+  background-color: #ff3333;
+  color: #fff;
+  border-radius: 50%;
+  padding: 0 6px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  min-width: 1.5rem;  /* ensures space for double-digit numbers */
+  text-align: center;
+  line-height: 1.5rem; /* vertically center the text */
 }
