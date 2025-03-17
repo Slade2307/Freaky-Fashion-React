@@ -1,5 +1,6 @@
-// ProductGrid.tsx
 import { useEffect, useState } from "react";
+import { useCart } from "../pages/Cart/CartContext";
+import { Link } from "react-router-dom";
 import "./ProductGrid.css";
 
 type Product = {
@@ -21,7 +22,7 @@ function ProductGrid({ searchTerm }: ProductGridProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
-  const { addToCart } = useCart(); // Use the cart context
+  const { addToCart } = useCart(); // ✅ Use the cart context
 
   // Fetch products from the backend on mount
   useEffect(() => {
@@ -67,17 +68,34 @@ function ProductGrid({ searchTerm }: ProductGridProps) {
 
         return (
           <div key={product.id} className="product-card">
-            <div className="product-image">
-              {imageSrc ? (
-                <img src={imageSrc} alt={product.name} />
-              ) : (
-                <div style={{ backgroundColor: "#ccc", height: "100%" }}>
-                  No image
-                </div>
-              )}
-            </div>
-            <h2>{product.name}</h2>
-            <p>{product.price} SEK</p>
+            {/* ✅ Clickable Link to Product Details */}
+            <Link to={`/product/${product.slug}`} className="product-link">
+              <div className="product-image">
+                {imageSrc ? (
+                  <img src={imageSrc} alt={product.name} />
+                ) : (
+                  <div style={{ backgroundColor: "#ccc", height: "100%" }}>
+                    No image
+                  </div>
+                )}
+              </div>
+              <h2>{product.name}</h2>
+              <p>{product.price} SEK</p>
+            </Link>
+
+            {/* ✅ Add to Cart Button */}
+            <button
+              className="add-to-cart-btn"
+              onClick={() => addToCart({ 
+                id: product.id, 
+                name: product.name, 
+                price: product.price, 
+                quantity: 1, 
+                imageUrl: product.imageUrl 
+              })}
+            >
+              Add to Cart
+            </button>
           </div>
         );
       })}

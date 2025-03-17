@@ -22,16 +22,19 @@ function ProductDetails() {
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     (async () => {
       try {
+        console.log(`Fetching product details: /api/products/${slug}`);
         const res = await fetch(`http://localhost:3000/api/products/${slug}`);
         if (!res.ok) throw new Error("Failed to fetch product");
         const data: Product = await res.json();
         setProduct(data);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error fetching product:", err);
+        setError("Failed to load product details.");
       } finally {
         setLoading(false);
       }
@@ -41,10 +44,10 @@ function ProductDetails() {
   useEffect(() => {
     (async () => {
       try {
+        console.log("Fetching related products...");
         const res = await fetch("http://localhost:3000/api/products");
         if (!res.ok) throw new Error("Failed to fetch related products");
         const data: Product[] = await res.json();
-        // Filter out the current product from related products
         setRelatedProducts(data.filter((p) => p.slug !== slug));
       } catch (err) {
         console.error("Error fetching related products:", err);
@@ -53,6 +56,7 @@ function ProductDetails() {
   }, [slug]);
 
   if (loading) return <div className="product-details">Loading...</div>;
+  if (error) return <div className="product-details">{error}</div>;
   if (!product) return <div className="product-details">Product not found.</div>;
 
   const settings = {
@@ -69,7 +73,6 @@ function ProductDetails() {
       { breakpoint: 480, settings: { slidesToShow: 1 } },
     ],
   };
-  
 
   return (
     <div className="product-details">
