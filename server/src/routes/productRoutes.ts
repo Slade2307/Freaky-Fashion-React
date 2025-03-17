@@ -20,14 +20,15 @@ interface ProductUpdateBody {
 
 // Setup Multer storage to save uploaded files to "product-images" folder.
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
     cb(null, 'product-images');
   },
-  filename: (req, file, cb) => {
+  filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     cb(null, uniqueSuffix + '-' + file.originalname);
   },
 });
+
 const upload = multer({ storage });
 
 // Helper function to generate a slug from a product name.
@@ -123,9 +124,10 @@ async function createProduct(req: Request<{}, any, ProductUpdateBody>, res: Resp
 
     // If a file was uploaded, use local path.
     // @ts-ignore: req.file is added by Multer at runtime.
-    if (req.file) {
-      finalImagePath = "/product-images/" + req.file.filename;
+    if ((req as any).file) {
+      finalImagePath = "/product-images/" + (req as any).file.filename;
     }
+    
     // Else if user typed an external URL, use that.
     else if (imageUrl && imageUrl.trim() !== "") {
       finalImagePath = imageUrl.trim();
