@@ -1,40 +1,74 @@
-/* Header.css */
-
 .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
-    background-color: #f0f0f0;
-  }
-  
-  .nav-bar ul {
-    list-style: none;
-    display: flex;
-    gap: 1rem;
-  }
-  
-  .nav-bar li {
-    cursor: pointer;
-    font-weight: 500;
-  }
-  
-  .search-bar {
-    display: flex;
-    gap: 0.5rem;
-  }
-  
-  .search-bar input {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    outline: none;
-  }
-  
-  .search-bar button {
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    border: none;
-    background-color: #333;
-    color: #fff;
-  }
-  
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: #f0f0f0;
+}
+
+/* Navigation Links */
+.nav-bar ul {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-bar li {
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* Container for search bar and cart icon */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem; /* space between the search bar and the cart link */
+}
+
+/* Search Bar */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.search-bar input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.search-bar button {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border: none;
+  background-color: #333;
+  color: #fff;
+}
+
+/* Cart Icon Link */
+.cart-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* If using a Font Awesome <i> or <FontAwesomeIcon> component */
+.cart-link i,
+.cart-link svg {
+  font-size: 1.5rem; /* adjust icon size */
+  color: #333;       /* adjust icon color */
+  transition: color 0.2s;
+}
+
+.cart-link a {
+  text-decoration: none;
+  color: inherit; /* match the icon color */
+}
+
+.cart-link a:hover i,
+.cart-link a:hover svg {
+  color: #000; /* darker on hover */
+}
