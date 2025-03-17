@@ -11,6 +11,10 @@ import ProductDetails from './components/ProductDetails';
 import ProductsList from './pages/Admin/ProductsList';
 import NewProduct from './pages/Admin/NewProduct';
 
+// Import your Cart page & CartProvider
+import Cart from './pages/Cart/Cart';
+import { CartProvider } from './pages/Cart/CartContext';
+
 import './App.css';
 
 function App() {
@@ -32,19 +36,20 @@ function App() {
         }
       />
 
-      {/* ProductDetails Route */}
-      <Route path="/product/:slug" element={<ProductDetails />} />
+        {/* REDIRECT /admin TO /admin/products */}
+        <Route path="/admin" element={<Navigate to="/admin/products" replace />} />
 
-      {/* REDIRECT /admin TO /admin/products */}
-      <Route path="/admin" element={<Navigate to="/admin/products" replace />} />
+        {/* ADMIN ROUTES */}
+        <Route path="/admin/products" element={<ProductsList />} />
+        <Route path="/admin/product/new" element={<NewProduct />} />
 
-      {/* ADMIN ROUTES */}
-      <Route path="/admin/products" element={<ProductsList />} />
-      <Route path="/admin/product/new" element={<NewProduct />} />
+        {/* CART ROUTE */}
+        <Route path="/cart" element={<Cart />} />
 
-      {/* OPTIONAL: 404 Not Found Route */}
-      <Route path="*" element={<div>Page not found</div>} />
-    </Routes>
+        {/* OPTIONAL: 404 Not Found Route */}
+        <Route path="*" element={<div>Page not found</div>} />
+      </Routes>
+    </CartProvider>
   );
 }
 

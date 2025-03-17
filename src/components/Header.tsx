@@ -1,6 +1,11 @@
-// Header.tsx
+// src/components/Header.tsx
 import { ChangeEvent } from "react";
+import { Link } from "react-router-dom";
 import "./Header.css";
+
+// Import FontAwesomeIcon and the shopping cart icon from Font Awesome
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
 
 type HeaderProps = {
   searchTerm: string;
@@ -16,22 +21,28 @@ function Header({ searchTerm, onSearchChange }: HeaderProps) {
     <header className="header">
       <nav className="nav-bar">
         <ul>
-          <li>Nyheter</li>
-          <li>Topplistan</li>
-          <li>Rea</li>
-          <li>Kampanjer</li>
+          <li><Link to="/">Nyheter</Link></li>
+          <li><Link to="/topplistan">Topplistan</Link></li>
+          <li><Link to="/rea">Rea</Link></li>
+          <li><Link to="/kampanjer">Kampanjer</Link></li>
         </ul>
       </nav>
 
-      <div className="search-bar">
-        {/* Use searchTerm as the input value, and update it on change */}
-        <input
-          type="text"
-          placeholder="Search..."
-          value={searchTerm}
-          onChange={handleSearchInput}
-        />
-        <button>Search</button>
+      <div className="header-actions">
+        <div className="search-bar">
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={handleSearchInput}
+          />
+          <button>Search</button>
+        </div>
+        <div className="cart-link">
+          <Link to="/cart" aria-label="Cart">
+            <FontAwesomeIcon icon={faShoppingCart} size="2x" />
+          </Link>
+        </div>
       </div>
     </header>
   );
