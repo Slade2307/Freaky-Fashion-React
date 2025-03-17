@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Hero from './components/Hero';
 import ProductGrid from './components/ProductGrid';
 import Footer from './components/Footer';
+import ProductDetails from './components/ProductDetails';
 
 // Import your admin pages
 import ProductsList from './pages/Admin/ProductsList';
@@ -30,6 +31,9 @@ function App() {
           </>
         }
       />
+
+      {/* ProductDetails Route */}
+      <Route path="/product/:slug" element={<ProductDetails />} />
 
       {/* REDIRECT /admin TO /admin/products */}
       <Route path="/admin" element={<Navigate to="/admin/products" replace />} />
