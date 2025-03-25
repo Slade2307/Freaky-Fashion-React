@@ -3,8 +3,9 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
-  padding: 2rem;
-  max-width: 1200px;
+  padding: 1rem; /* Add padding for spacing */
+  padding-bottom: 50px;
+  width: 100%; /* Full width */
   margin: 0 auto;
 }
 
@@ -78,16 +79,23 @@
   color: #2b7a2b;
 }
 
-/* For tablet screens (768px and up): 2 columns */
+/* For tablet screens (768px and up): 3 columns */
 @media (min-width: 768px) {
   .product-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr); /* Increase columns for larger screens */
   }
 }
 
-/* For desktop screens (1024px and up): 3 columns */
+/* For desktop screens (1024px and up): 4 columns */
 @media (min-width: 1024px) {
   .product-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr); /* More columns on larger screens */
+  }
+}
+
+/* For larger desktop screens (1440px and up): 5 columns */
+@media (min-width: 1440px) {
+  .product-grid {
+    grid-template-columns: repeat(5, 1fr); /* Even more columns for extra-large screens */
   }
 }

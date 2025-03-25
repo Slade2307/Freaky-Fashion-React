@@ -1,15 +1,15 @@
-// Hero.tsx
 import './Hero.css'; // or other imports
 
 function Hero() {
   return (
     <section className="hero">
-      <h1>Lorem ipsum dolor</h1>
+      <h1>Freaky Fashion</h1>
       <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi at dolor eu
-        arcu luctus sollicitudin.
+      Welcome to Freaky Fashion, where style meets bold creativity. Embrace the unconventional and stand out with our unique collections that redefine fashion. Get ready to make a statement!
       </p>
-      <div className="hero-image">[Hero Image Placeholder]</div>
+      <div className="hero-image">
+        <img src="src/components/images/dressy_image.png" alt="Hero" />
+      </div>
     </section>
   );
 }
