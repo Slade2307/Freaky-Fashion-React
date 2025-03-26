@@ -14,12 +14,17 @@ interface Product {
   name: string;
   description: string;
   price: number;
-  imageUrl?: string;
+  imageUrl?: string;   // main image
+  imageUrl2?: string;
+  imageUrl3?: string;
+  imageUrl4?: string;
+  imageUrl5?: string;
 }
 
 function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [product, setProduct] = useState<Product | null>(null);
+  const [mainImage, setMainImage] = useState<string>(""); // track which image is shown on top
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -37,6 +42,9 @@ function ProductDetail() {
         }
         const data: Product = await res.json();
         setProduct(data);
+
+        // Default main image is imageUrl or blank
+        setMainImage(data.imageUrl || "");
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -59,7 +67,7 @@ function ProductDetail() {
         }
         const allProducts: Product[] = await res.json();
 
-        // Filter out current product
+        // Filter out the current product
         const others = allProducts.filter((p) => p.id !== product.id);
         // Shuffle & pick up to 5
         const randomSubset = others.sort(() => 0.5 - Math.random()).slice(0, 5);
@@ -72,16 +80,31 @@ function ProductDetail() {
     fetchAllProducts();
   }, [product]);
 
-  if (loading) return <div className="product-detail">Laddar produkt...</div>;
-  if (error) return <div className="product-detail">Fel: {error}</div>;
-  if (!product) return <div className="product-detail">Ingen produkt hittades.</div>;
+  if (loading) {
+    return <div className="product-detail">Laddar produkt...</div>;
+  }
+  if (error) {
+    return <div className="product-detail">Fel: {error}</div>;
+  }
+  if (!product) {
+    return <div className="product-detail">Ingen produkt hittades.</div>;
+  }
 
   // 3) Add to cart
   const handleAddToCart = () => {
     addToCart({ ...product, quantity: 1 });
   };
 
-  // 4) Build carousel items
+  // Gather all non-empty images into an array for thumbnails
+  const allImages = [
+    product.imageUrl,
+    product.imageUrl2,
+    product.imageUrl3,
+    product.imageUrl4,
+    product.imageUrl5,
+  ].filter(Boolean) as string[];
+
+  // 4) Build carousel items for related products
   const carouselItems = relatedProducts.map((prod) => (
     <Link
       key={prod.id}
@@ -103,15 +126,15 @@ function ProductDetail() {
     <>
       {/* Header with dummy props */}
       <Header
-        searchTerm=""                     
+        searchTerm=""
         onSearchChange={() => {}}
       />
 
       {/* Main product detail section */}
       <section className="product-detail">
         <div className="product-detail-image">
-          {product.imageUrl ? (
-            <img src={product.imageUrl} alt={product.name} />
+          {mainImage ? (
+            <img src={mainImage} alt={product.name} />
           ) : (
             <div className="no-image">Ingen bild</div>
           )}
@@ -123,6 +146,21 @@ function ProductDetail() {
           <button className="add-to-cart-btn" onClick={handleAddToCart}>
             Lägg i varukorg
           </button>
+
+          {/* Thumbnails row if we have multiple images */}
+          {allImages.length > 1 && (
+            <div className="product-thumbnails">
+              {allImages.map((url, idx) => (
+                <img
+                  key={idx}
+                  src={url}
+                  alt={`Thumbnail ${idx + 1}`}
+                  className="product-thumb"
+                  onClick={() => setMainImage(url)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

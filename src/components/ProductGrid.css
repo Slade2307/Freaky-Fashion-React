@@ -24,11 +24,10 @@
 
 /* Container for product images */
 .product-image {
-  width: 100%;
-  height: 150px;
+  width: 350px;
+  height: 575px;
   background-color: #ffffff;
-  margin-bottom: 1rem;
-  padding: 0.5rem;
+  padding: 0.1rem;
   overflow: hidden;
 }
 

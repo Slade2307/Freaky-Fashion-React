@@ -1,32 +1,33 @@
 /* Container for the entire detail section */
 .product-detail {
   display: flex;
-  flex-wrap: wrap; /* allows stacking on smaller screens */
+  /* ensures the main image and thumbnails row appear side by side */
+  align-items: flex-start;
+  flex-wrap: wrap; 
   gap: 2rem;
   max-width: 900px;
-  margin: 2rem auto; /* center on the page */
-  padding: 0 1rem;   /* small horizontal padding */
-  font-family: sans-serif; /* adjust as needed */
+  margin: 2rem auto;
+  margin-top: 10%;
+  padding: 0 1rem;
+  font-family: sans-serif;
 }
 
-/* Fixed-size container for the product image */
+/* The MAIN product image is large: 400×600 */
 .product-detail-image {
-  /* Remove 'flex: 1' and 'min-width' from earlier */
-  width: 400px;             /* fixed width */
-  height: 300px;            /* fixed height */
-  background-color: #fff;   /* white background for margin space */
+  width: 400px;
+  height: 600px;
+  background-color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 4px;
   overflow: hidden;
-  /* You can adjust these dimensions to suit your design */
 }
 
 .product-detail-image img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain; /* keep aspect ratio, show white space if needed */
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
 }
 
 .no-image {
@@ -35,9 +36,26 @@
   color: #999;
 }
 
+/* Thumbnails for images 2–5 in a vertical column on the right */
+.product-thumbnails {
+  display: flex;
+  flex-direction: column; /* stack vertically */
+  gap: 1rem;              /* space between thumbnails */
+  margin-left: auto;      /* push them to the right if there's extra space */
+}
+
+/* Each thumbnail is smaller than the main image */
+.product-thumb {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
 /* Right column: product info */
 .product-detail-info {
-  /* Keep or adjust as needed */
   flex: 1;
   min-width: 280px;
   display: flex;
@@ -45,7 +63,6 @@
   gap: 1rem;
 }
 
-/* Title, price, description */
 .product-detail-info h1 {
   margin: 0;
   font-size: 2rem;
@@ -69,7 +86,7 @@
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   font-weight: 600;
-  background-color: #ffd814; /* Amazon-like yellow */
+  background-color: #ffd814;
   border: 1px solid #fcd200;
   border-radius: 4px;
   cursor: pointer;
@@ -84,7 +101,7 @@
 /* RELATED PRODUCTS SECTION */
 .related-products {
   max-width: 900px;
-  margin: 2rem auto; /* center it */
+  margin: 2rem auto;
   padding: 0 1rem;
   font-family: sans-serif;
 }
@@ -92,12 +109,10 @@
 .related-products h2 {
   margin-bottom: 1rem;
   font-size: 1.5rem;
-  text-align: left; /* or center, if you prefer */
+  text-align: left; 
 }
 
 /* ALICE CAROUSEL OVERRIDES */
-
-/* Each "stage-item" is effectively a slide */
 .alice-carousel__stage-item {
   margin: 0 0.5rem;
   padding: 1rem;
@@ -106,7 +121,6 @@
   text-align: center;
 }
 
-/* The image inside each slide */
 .alice-carousel__stage-item img {
   width: 100%;
   height: 150px;
@@ -114,7 +128,6 @@
   margin-bottom: 0.5rem;
 }
 
-/* Title and price inside each slide */
 .alice-carousel__stage-item h4 {
   font-size: 1.2rem;
   margin: 0.5rem 0 0.25rem;
@@ -126,18 +139,15 @@
   margin: 0;
 }
 
-/* Dots (if you use them) */
 .alice-carousel__dots {
   margin-top: 1rem;
   text-align: center;
 }
 
-/* Make the carousel wrapper relative so buttons can be absolutely positioned */
 .alice-carousel__wrapper {
   position: relative !important;
 }
 
-/* Navigation buttons (prev/next) */
 .alice-carousel__prev-btn,
 .alice-carousel__next-btn {
   background: none !important;
@@ -145,28 +155,25 @@
   border-radius: 0 !important;
   width: auto !important;
   height: auto !important;
-  font-size: 3rem !important; /* Larger arrow icon */
-  font-weight: bold !important; /* Bolder arrow */
-  color: #9d999f !important; /* Dark gray arrow color */
-  text-shadow: 3px 3px 3px rgba(0,0,0,0.4); /* Subtle shadow behind the arrow */
+  font-size: 3rem !important;
+  font-weight: bold !important;
+  color: #9d999f !important;
+  text-shadow: 3px 3px 3px rgba(0,0,0,0.4);
   cursor: pointer;
   position: absolute;
   top: 50%;
-  transform: translateY(-90%);
+  transform: translateY(-50%);
   z-index: 2;
 }
 
-/* Position left arrow horizontally */
 .alice-carousel__prev-btn {
   left: 10px;
 }
 
-/* Position right arrow horizontally */
 .alice-carousel__next-btn {
   right: 10px;
 }
 
-/* Hover state for arrows */
 .alice-carousel__prev-btn:hover,
 .alice-carousel__next-btn:hover {
   color: #000 !important;

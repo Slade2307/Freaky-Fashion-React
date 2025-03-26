@@ -1,4 +1,4 @@
-// ProductsList.tsx
+// src/pages/Admin/ProductsList.tsx
 import React, { useEffect, useState } from 'react';
 import './ProductsList.css';
 
@@ -9,8 +9,13 @@ type Product = {
   price: number;
   sku: string;
   imageUrl: string;
+  imageUrl2?: string;
+  imageUrl3?: string;
+  imageUrl4?: string;
+  imageUrl5?: string;
   publishDate: string;
   slug: string;
+  sortOrder?: number; // NEW
 };
 
 function ProductsList() {
@@ -36,6 +41,10 @@ function ProductsList() {
 
         const data: Product[] = await res.json();
         console.log("📦 Received products:", data);
+
+        // Sort them by sortOrder if it exists
+        data.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+
         setProducts(data);
       } catch (err: any) {
         console.error("🚨 Fetch error:", err.message);
@@ -45,6 +54,52 @@ function ProductsList() {
       }
     })();
   }, []);
+
+  // ─────────────────────────────────────────────
+  // DRAG & DROP HANDLERS
+  // ─────────────────────────────────────────────
+  function handleDragStart(e: React.DragEvent<HTMLTableRowElement>, dragIndex: number) {
+    e.dataTransfer.setData("text/plain", dragIndex.toString());
+  }
+
+  function handleDragOver(e: React.DragEvent<HTMLTableRowElement>) {
+    e.preventDefault(); // allow drop
+  }
+
+  async function handleDrop(e: React.DragEvent<HTMLTableRowElement>, dropIndex: number) {
+    e.preventDefault();
+    const dragIndex = Number(e.dataTransfer.getData("text/plain"));
+    if (dragIndex === dropIndex) return;
+
+    // 1) Locally reorder
+    setProducts((prev) => {
+      const newArr = [...prev];
+      const [removed] = newArr.splice(dragIndex, 1);
+      newArr.splice(dropIndex, 0, removed);
+
+      // 2) Update each product's sortOrder in local state
+      newArr.forEach((p, i) => {
+        p.sortOrder = i; // e.g. 0, 1, 2, ...
+      });
+
+      // 3) Persist the new order to server
+      // We'll do a quick "PUT" for each product with the new sortOrder
+      newArr.forEach(async (prod) => {
+        try {
+          await fetch(`http://localhost:3000/api/products/${prod.slug}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sortOrder: prod.sortOrder }),
+          });
+        } catch (err) {
+          console.error("Error updating sortOrder for:", prod.slug, err);
+        }
+      });
+
+      return newArr;
+    });
+  }
+  // ─────────────────────────────────────────────
 
   // Handle "Edit"
   function handleEdit(product: Product) {
@@ -117,9 +172,14 @@ function ProductsList() {
       <table>
         <thead>
           <tr>
-            <th>Thumbnail</th> {/* New column for the product thumbnail */}
+            <th>Main Image</th>
+            <th>imageUrl2</th>
+            <th>imageUrl3</th>
+            <th>imageUrl4</th>
+            <th>imageUrl5</th>
             <th>ID</th>
             <th>Name</th>
+            <th>Description</th>
             <th>SKU</th>
             <th>Price</th>
             <th>Slug</th>
@@ -128,20 +188,102 @@ function ProductsList() {
           </tr>
         </thead>
         <tbody>
-          {products.map((product) => {
+          {products.map((product, index) => {
             const isEditing = editingSlug === product.slug;
             return (
-              <tr key={product.id}>
-                {/* Thumbnail column */}
+              <tr
+                key={product.id}
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, index)}
+              >
+                {/* Main image thumbnail */}
                 <td>
-                  {product.imageUrl ? (
-                    <img
-                      src={product.imageUrl}
-                      alt={product.name}
-                      style={{ width: '50px', height: 'auto' }}
+                  {isEditing ? (
+                    <input
+                      name="imageUrl"
+                      value={editFormData.imageUrl ?? ''}
+                      onChange={handleChange}
                     />
                   ) : (
-                    'No image'
+                    product.imageUrl ? (
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        style={{ width: '50px', height: 'auto' }}
+                      />
+                    ) : 'No image'
+                  )}
+                </td>
+
+                {/* Additional images 2..5 */}
+                <td>
+                  {isEditing ? (
+                    <input
+                      name="imageUrl2"
+                      value={editFormData.imageUrl2 ?? ''}
+                      onChange={handleChange}
+                    />
+                  ) : (
+                    product.imageUrl2 ? (
+                      <img
+                        src={product.imageUrl2}
+                        alt="Extra 2"
+                        style={{ width: '50px', height: 'auto' }}
+                      />
+                    ) : 'No image'
+                  )}
+                </td>
+                <td>
+                  {isEditing ? (
+                    <input
+                      name="imageUrl3"
+                      value={editFormData.imageUrl3 ?? ''}
+                      onChange={handleChange}
+                    />
+                  ) : (
+                    product.imageUrl3 ? (
+                      <img
+                        src={product.imageUrl3}
+                        alt="Extra 3"
+                        style={{ width: '50px', height: 'auto' }}
+                      />
+                    ) : 'No image'
+                  )}
+                </td>
+                <td>
+                  {isEditing ? (
+                    <input
+                      name="imageUrl4"
+                      value={editFormData.imageUrl4 ?? ''}
+                      onChange={handleChange}
+                    />
+                  ) : (
+                    product.imageUrl4 ? (
+                      <img
+                        src={product.imageUrl4}
+                        alt="Extra 4"
+                        style={{ width: '50px', height: 'auto' }}
+                      />
+                    ) : 'No image'
+                  )}
+                </td>
+                <td>
+                  {isEditing ? (
+                    <input
+                      name="imageUrl5"
+                      value={editFormData.imageUrl5 ?? ''}
+                      onChange={handleChange}
+                    />
+                  ) : (
+                    product.imageUrl5 ? (
+                      <img
+                        src={product.imageUrl5}
+                        alt="Extra 5"
+                        style={{ width: '50px', height: 'auto' }}
+                      />
+                    ) : 'No image'
                   )}
                 </td>
 
@@ -155,6 +297,17 @@ function ProductsList() {
                     />
                   ) : (
                     product.name
+                  )}
+                </td>
+                <td className="description-cell">
+                  {isEditing ? (
+                    <input
+                      name="description"
+                      value={editFormData.description ?? ''}
+                      onChange={handleChange}
+                    />
+                  ) : (
+                    product.description
                   )}
                 </td>
                 <td>
@@ -193,6 +346,7 @@ function ProductsList() {
                     product.publishDate
                   )}
                 </td>
+
                 <td>
                   {isEditing ? (
                     <>

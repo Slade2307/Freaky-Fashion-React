@@ -1,42 +1,58 @@
 /* ProductsList.css */
 
 .products-list {
-    padding: 1rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    overflow-x: auto; /* Allows horizontal scrolling if needed */
-  }
-  
-  .products-list h2 {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    font-size: 2rem;
-    color: #333;
-  }
-  
-  .products-list table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 1rem;
-  }
-  
-  .products-list th,
-  .products-list td {
-    border: 1px solid #ddd;
-    padding: 0.75rem;
-    text-align: left;
-  }
-  
-  .products-list th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-  }
-  
-  .products-list tr:nth-child(even) {
-    background-color: #fafafa;
-  }
-  
-  .products-list tr:hover {
-    background-color: #f1f1f1;
-  }
-  
+  max-width: 1200px;
+  overflow-x: auto; /* Allows horizontal scrolling if needed */
+  overflow-y: auto; /* Allows vertical scrolling if needed */
+}
+
+.products-list h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #333;
+}
+
+/* 1) Fixed table layout to respect column widths/row heights. */
+.products-list table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  table-layout: fixed; /* crucial for fixed row height to work */
+}
+
+.products-list tr {
+  max-height: 150px;
+  overflow: hidden; /* hides content that doesn't fit */
+}
+
+/* Basic cell styling */
+.products-list th,
+.products-list td {
+  border: 1px solid #ddd;
+  padding: 0.75rem;
+  text-align: left;
+  vertical-align: top; /* place content at top */
+  overflow: hidden; /* hide content if it exceeds 150px */
+}
+
+/* Column headers */
+.products-list th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+/* Zebra striping & hover effect */
+.products-list tr:nth-child(even) {
+  background-color: #fafafa;
+}
+.products-list tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* 3) For text: clamp description at 150px using ellipsis. */
+.description-cell {
+  /* Force text to remain in 150px row with ellipsis if it’s too long */
+  display: inline-block;   /* needed for ellipsis on a single line or multi-line approach */
+  width: 100%;
+  max-height: 150px;
+}
