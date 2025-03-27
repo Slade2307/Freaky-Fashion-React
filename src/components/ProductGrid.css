@@ -1,56 +1,62 @@
-/* Default: mobile-first - 1 column */
+/* Base layout */
 .product-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
-  padding: 1rem; /* Add padding for spacing */
+  padding: 1rem;
   padding-bottom: 50px;
-  width: 100%; /* Full width */
+  width: 100%;
   margin: 0 auto;
-
-  /* remove justify-items, use justify-content to center items across row */
-  justify-content: center;
+  justify-items: center; /* center each card */
+  box-sizing: border-box;
 }
 
-/* Remove default link styles for product links */
-.product-link {
-  text-decoration: none;
-  color: inherit;
-}
-
+/* Product card with fixed max width */
 .product-card {
+  width: 100%;
+  max-width: 500px;
   padding: 1rem;
   text-align: center;
-
-  /* fix width & height so all are identical */
-  width: 500px;
-  min-height: 750px;
   box-sizing: border-box;
-
-  /* NEW: ensure no content can force container wider */
-  overflow: hidden; 
+  background-color: #fff;
 }
 
-/* Force long text to wrap instead of widening container */
+/* Image container fills the card */
+.product-image {
+  width: 100%;
+  padding: 0.1rem;
+  background-color: #fff;
+  margin: 0 auto;
+}
+
+/* Image fits inside card, no stretching or cropping */
+.product-image img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* Text handling */
 .product-card h2,
 .product-card p {
-  overflow-wrap: break-word; /* or 'word-wrap: break-word;' if needed */
+  overflow-wrap: break-word;
 }
 
-/* Container for product images */
 .product-card h2 {
   margin-bottom: 0.5rem;
+  font-size: 1.2rem;
 }
 
 .product-card p {
   font-weight: bold;
 }
 
-/* Button styling with rounded corners */
+/* Add to cart button */
 .add-to-cart-btn {
-  background-color: #ffd814; /* Amazon-like yellow */
+  background-color: #ffd814;
   border: 1px solid #fcd200;
-  border-radius: 12px; /* Increased for more rounded corners */
+  border-radius: 12px;
   color: #111;
   font-weight: bold;
   padding: 0.5rem 1rem;
@@ -63,42 +69,32 @@
   background-color: #f7ca00;
 }
 
-/* When the product was just added, button changes style */
 .add-to-cart-btn.added {
-  background-color: #d4f8d4; /* Light green background */
+  background-color: #d4f8d4;
   border-color: #2b7a2b;
   color: #2b7a2b;
 }
 
-/* Checkmark style for added state */
 .checkmark {
   margin-right: 0.5rem;
   font-weight: bold;
   color: #2b7a2b;
 }
 
-/* For tablet screens (768px and up): 3 columns */
-@media (min-width: 768px) {
+/* Responsive grid columns */
+@media (min-width: 640px) {
   .product-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* For desktop screens (1024px and up): 4 columns */
 @media (min-width: 1024px) {
   .product-grid {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
-/* For larger desktop screens (1440px and up): 5 columns */
-@media (min-width: 1440px) {
-  .product-grid {
-    grid-template-columns: repeat(5, 1fr);
-  }
-}
-
-/* New CSS for image hover swap */
+/* Hover image logic */
 .image-wrapper {
   position: relative;
   display: inline-block;
@@ -109,6 +105,7 @@
   display: block;
   height: auto;
   transition: opacity 0.3s ease;
+  width: 100%;
 }
 
 .hover-img {
