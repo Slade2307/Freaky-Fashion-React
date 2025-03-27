@@ -24,11 +24,13 @@ interface Product {
 function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [product, setProduct] = useState<Product | null>(null);
-  const [mainImage, setMainImage] = useState<string>(""); // track which image is shown on top
+  const [mainImage, setMainImage] = useState<string>("");
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const { addToCart } = useCart();
+
+  const [justAdded, setJustAdded] = useState(false); 
+  const { addToCart } = useCart(); 
 
   // 1) Fetch the current product
   useEffect(() => {
@@ -92,8 +94,17 @@ function ProductDetail() {
 
   // 3) Add to cart
   const handleAddToCart = () => {
+    if (!product) return;
+  
     addToCart({ ...product, quantity: 1 });
+    setJustAdded(true);
+  
+    // Reset after 2 seconds
+    setTimeout(() => {
+      setJustAdded(false);
+    }, 2000);
   };
+  
 
   // Gather all non-empty images into an array for thumbnails
   const allImages = [
@@ -143,9 +154,19 @@ function ProductDetail() {
           <h1>{product.name}</h1>
           <p className="product-price">{product.price} SEK</p>
           <p className="product-description">{product.description}</p>
-          <button className="add-to-cart-btn" onClick={handleAddToCart}>
-            Lägg i varukorg
-          </button>
+          <button
+              className={`add-to-cart-btn ${justAdded ? "added" : ""}`}
+              onClick={handleAddToCart}
+            >
+              {justAdded ? (
+                <>
+                  <span className="checkmark">✔</span> Tillagd i kundvagn
+                </>
+              ) : (
+                "Lägg i varukorg"
+              )}
+            </button>
+
 
           {/* Thumbnails row if we have multiple images */}
           {allImages.length > 1 && (

@@ -52,23 +52,6 @@
   font-weight: bold;
 }
 
-/* Add to cart button */
-.add-to-cart-btn {
-  background-color: #ffd814;
-  border: 1px solid #fcd200;
-  border-radius: 12px;
-  color: #111;
-  font-weight: bold;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  margin-top: 0.5rem;
-  transition: background-color 0.2s;
-}
-
-.add-to-cart-btn:hover {
-  background-color: #f7ca00;
-}
-
 .add-to-cart-btn.added {
   background-color: #d4f8d4;
   border-color: #2b7a2b;
