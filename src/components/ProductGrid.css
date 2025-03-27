@@ -52,6 +52,13 @@
   padding-bottom: 0.5rem;
 }
 
+
+.add-to-cart-btn  {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+
 .add-to-cart-btn.added {
   background-color: #d4f8d4;
   border-color: #2b7a2b;

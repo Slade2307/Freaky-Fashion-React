@@ -1,192 +1,236 @@
-/* Container for the entire detail section */
-.product-detail {
-  display: flex;
-  /* ensures the main image and thumbnails row appear side by side */
-  align-items: flex-start;
-  flex-wrap: wrap; 
-  gap: 2rem;
-  margin: 2rem auto;
-  margin-top: 10%;
-  padding: 0 1rem;
-  font-family: sans-serif;
-}
+/* ========================
+   Default (medium screens)
+   ======================== */
+   .product-detail {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 2rem auto;
+    margin-top: 8%; /* If you prefer less top gap, lower this */
+    padding: 0 2rem;
+    font-family: sans-serif;
+  }
+  
+  /* Main image container */
+  .product-detail-image {
+    width: 400px;
+    height: 600px;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .product-detail-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* Thumbnails (stacked by default) */
+  .product-thumbnails {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .product-thumb {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  /* Product info */
+  .product-detail-info {
+    flex: 1;
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  /* ========================
+     Related Products
+     ======================== */
+  .related-products {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    font-family: sans-serif;
+  }
+  .related-products h2 {
+    margin-top: 2.5;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    text-align: left;
+  }
+  
+  /* ========================
+     Alice Carousel Overrides
+     ======================== */
+    /* Optionally, ensure the stage itself also doesn't force overflow */
 
-/* The MAIN product image is large: 400×600 */
-.product-detail-image {
-  width: 400px;
-  height: 600px;
-  background-color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  overflow: hidden;
-}
+    
 
-.product-detail-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; 
-}
+  .alice-carousel__stage-item {
 
-.no-image {
-  padding: 2rem;
-  text-align: center;
-  color: #999;
-}
+    border-radius: 4px;
+    background: #fff;
+    text-align: center;
+  }
+  .alice-carousel__stage-item img {
+    width: 100%;
+    height: auto;           /* remove fixed height */
+    max-height: 400px;      /* optional: limit the height if needed */
+    object-fit: contain;    /* ensure the full image is visible without cropping */
+    margin-bottom: 0.5rem;
+  }
+  
+  .alice-carousel__stage-item h4 {
+    font-size: 1.2rem;
+    margin: 0.5rem 0 0.25rem;
+  }
+  
+  .alice-carousel__stage-item p {
+    font-size: 1.1rem;
+    color: #333;
+    margin: 0;
+  }
+  .alice-carousel__dots {
+    margin-top: 1.5rem;
+    text-align: center;
+  }
+  .alice-carousel__wrapper {
+    position: relative !important;
+  }
+  .alice-carousel__prev-btn,
+  .alice-carousel__next-btn {
+    background: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    font-size: 3rem !important;
+    font-weight: bold !important;
+    color: #9d999f !important;
+    text-shadow: 3px 3px 3px rgba(0,0,0,0.4);
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+  }
+  .alice-carousel__prev-btn { left: 10px; }
+  .alice-carousel__next-btn { right: 10px; }
+  .alice-carousel__prev-btn:hover,
+  .alice-carousel__next-btn:hover {
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+  }
+  
+  /* ========================
+     Small Screens (< 768px)
+     ======================== */
+  @media (max-width: 767px) {
+    .product-detail {
+      flex-direction: column;
+      align-items: center;
+      margin-top: 5rem; /* reduce if you want less top gap */
+    }
+  
+    .product-detail-image {
+      width: 80%;
+      max-width: 400px;
+      height: auto; /* let image height adjust */
+    }
+  
+    .product-thumbnails {
+      flex-direction: row;
+      margin-top: 1rem;
+      gap: 0.5rem;
+    }
+  
+    .product-thumb {
+      width: 80px;
+      height: 80px;
+    }
+  
+    .product-detail-info {
+      width: 100%;
+      text-align: center;
+      align-items: center;
+      margin-top: 1rem;
+    }
+  }
 
-/* Thumbnails for images 2–5 in a vertical column on the right */
-.product-thumbnails {
-  display: flex;
-  flex-direction: column; /* stack vertically */
-  gap: 1rem;              /* space between thumbnails */
-  margin-left: auto;      /* push them to the right if there's extra space */
-}
+/* ========================
+   Medium Screens (768px–1199px)
+   ======================== */
+   @media (min-width: 768px) and (max-width: 1199px) {
+    .product-detail {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 2rem;
+      max-width: 1000px; /* or 100% if you prefer */
+      margin: 3rem auto; /* adjust top gap as needed */
+    }
+  
+    .product-detail-image {
+      width: 350px;
+      height: 525px; /* proportionally smaller than 400×600 */
+    }
+  
+    .product-thumbnails {
+      flex-direction: row;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+  
+    .product-thumb {
+      width: 100px;
+      height: 100px;
+    }
+  
+    .product-detail-info {
+      max-width: 500px;
+      text-align: left;
+      align-items: flex-start;
+      margin-top: 0;
+    }
+  }
 
-/* Each thumbnail is smaller than the main image */
-.product-thumb {
-  width: 150px;
-  height: 150px;
-  object-fit: cover;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-/* Right column: product info */
-.product-detail-info {
-  flex: 1;
-  min-width: 280px;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.product-detail-info h1 {
-  margin: 0;
-  font-size: 2rem;
-}
-
-.product-price {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-  margin: 0;
-}
-
-.product-description {
-  font-size: 1rem;
-  line-height: 1.5;
-  color: #444;
-}
-
-/* Add to cart button */
-.add-to-cart-btn {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  background-color: #000000;
-  border-radius: 4px;
-  cursor: pointer;
-  color: #ffffff;
-  width: fit-content;
-}
-
-.add-to-cart-btn:hover {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-.add-to-cart-btn.added {
-  background-color: #d4f8d4;
-  border-color: #2b7a2b;
-  color: #2b7a2b;
-}
-
-.checkmark {
-  margin-right: 0.5rem;
-  font-weight: bold;
-  color: #2b7a2b;
-}
-
-/* RELATED PRODUCTS SECTION */
-.related-products {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-  font-family: sans-serif;
-}
-
-.related-products h2 {
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-  text-align: left; 
-}
-
-/* ALICE CAROUSEL OVERRIDES */
-.alice-carousel__stage-item {
-  margin: 0 0.5rem;
-  padding: 1rem;
-  border-radius: 4px;
-  background: #fff;
-  text-align: center;
-}
-
-.alice-carousel__stage-item img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  margin-bottom: 0.5rem;
-}
-
-.alice-carousel__stage-item h4 {
-  font-size: 1.2rem;
-  margin: 0.5rem 0 0.25rem;
-}
-
-.alice-carousel__stage-item p {
-  font-size: 1.1rem;
-  color: #333;
-  margin: 0;
-}
-
-.alice-carousel__dots {
-  margin-top: 1rem;
-  text-align: center;
-}
-
-.alice-carousel__wrapper {
-  position: relative !important;
-}
-
-.alice-carousel__prev-btn,
-.alice-carousel__next-btn {
-  background: none !important;
-  border: none !important;
-  border-radius: 0 !important;
-  width: auto !important;
-  height: auto !important;
-  font-size: 3rem !important;
-  font-weight: bold !important;
-  color: #9d999f !important;
-  text-shadow: 3px 3px 3px rgba(0,0,0,0.4);
-  cursor: pointer;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 2;
-}
-
-.alice-carousel__prev-btn {
-  left: 10px;
-}
-
-.alice-carousel__next-btn {
-  right: 10px;
-}
-
-.alice-carousel__prev-btn:hover,
-.alice-carousel__next-btn:hover {
-  color: #000 !important;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
-}
+  /* ========================
+     Large Screens (>= 1200px)
+     ======================== */
+  @media (min-width: 1200px) {
+    .product-detail {
+      /* Keep horizontal layout, use the full width nicely */
+      flex-direction: row;
+      justify-content: space-between; 
+      max-width: 1200px; /* or 100% if you prefer */
+      margin-top: 5%; /* optional to reduce empty space up top */
+    }
+  
+    .product-thumbnails {
+      flex-direction: row; 
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+  
+    .product-thumb {
+      width: 150px;
+      height: 150x;
+    }
+  
+    .product-detail-info {
+      max-width: 600px;
+      text-align: left;
+      align-items: flex-start;
+      margin-top: 0;
+    }
+  }
+  
