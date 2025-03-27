@@ -1,4 +1,8 @@
 /* Hero.css */
+.nav-bar ul {
+  padding: 1rem;
+}
+
 .hero {
   display: flex;
   flex-direction: column;
@@ -6,9 +10,8 @@
   align-items: center;
   text-align: center;
   color: black;
-  margin: 0;
+  margin-top: 10rem;
   width: 100%; /* Full-width */
-  padding: 2rem 0;
   overflow: hidden;
 }
 
@@ -19,20 +22,21 @@
 
 .hero p {
   max-width: 800px;
-  margin: 0 auto 1rem;
+  margin: 1rem;
   line-height: 1.5;
   color: #333;
+  margin-top: 1.5rem;
 }
 
 .hero-image {
-  width: 100%; /* Full width */
-  height: 100vh; /* Cover entire viewport height */
-  overflow: hidden;
+  width: 100vw;
+  position: relative;
+  margin-top: 1rem;
 }
 
 .hero-image img {
   width: 100%; /* Full width without overflow */
-  height: 100%; /* Full height */
+  height: 70%; /* Full height */
   object-fit: cover;
   display: block;
   margin: 0;
@@ -46,10 +50,6 @@ img {
 
 /* Media query for 1024px and above */
 @media (min-width: 1024px) {
-  .hero {
-    padding: 2rem;
-    margin: 40px auto;
-  }
 
   .hero h1 {
     font-size: 4rem;
@@ -59,8 +59,59 @@ img {
     font-size: 1.25rem;
     margin-bottom: 1.5rem;
   }
-
-  .hero-image {
-    height: 100vh; /* Cover the entire viewport height */
-  }
 }
+
+  /* Add padding to body or main content so it doesn't hide behind header */
+  body,
+  main {
+    padding-top: 90px; 
+  }
+
+/* Hide hero on screens smaller than 640px */
+@media (max-width: 639px) {
+  .hero {
+    display: none;
+  }
+
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    width: 100%;
+    margin: 0;
+    padding: 1rem;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column; /* Stack nav and search vertically */
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow */
+  }
+
+  .nav-bar ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0;
+    margin: 0.5rem 0;
+  }
+
+  .header .search-container {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+  }
+
+  .header .search-container input {
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+
+}
+
