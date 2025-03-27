@@ -1,6 +1,6 @@
-// src/components/ProductGrid.tsx 
+// src/components/ProductGrid.tsx
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom"; // NEW: Import Link for navigation
+import { Link } from "react-router-dom";
 import { useCart } from "../pages/Cart/CartContext";
 import "./ProductGrid.css";
 
@@ -10,7 +10,8 @@ type Product = {
   description: string;
   price: number;
   sku: string;
-  imageUrl?: string;
+  imageUrl?: string;   // main image
+  imageUrl2?: string;  // second image for hover
   publishDate: string;
   slug: string;
 };
@@ -23,8 +24,7 @@ function ProductGrid({ searchTerm }: ProductGridProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [justAdded, setJustAdded] = useState<{ [key: number]: boolean }>({}); 
-  // Tracks which product IDs were recently added
+  const [justAdded, setJustAdded] = useState<{ [key: number]: boolean }>({});
 
   const { addToCart } = useCart();
 
@@ -47,19 +47,18 @@ function ProductGrid({ searchTerm }: ProductGridProps) {
   }, []);
 
   // Filter by search term
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProducts = products.filter((p) =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) return <section className="product-grid">Loading products...</section>;
   if (error) return <section className="product-grid">{error}</section>;
 
-  // Handle the "add to cart" click. Each click adds an extra quantity of 1.
+  // Add to cart
   const handleAddToCart = (product: Product) => {
     addToCart({ ...product, quantity: 1 });
     setJustAdded((prev) => ({ ...prev, [product.id]: true }));
 
-    // Revert visual feedback after 2 seconds
     setTimeout(() => {
       setJustAdded((prev) => ({ ...prev, [product.id]: false }));
     }, 2000);
@@ -68,26 +67,37 @@ function ProductGrid({ searchTerm }: ProductGridProps) {
   return (
     <section className="product-grid">
       {filteredProducts.map((product) => {
-        // Ensure correct local vs external image path
-        const imageSrc = product.imageUrl?.startsWith("/product-images/")
+        // Build main and hover image URLs (local or external)
+        const mainSrc = product.imageUrl?.startsWith("/product-images/")
           ? `http://localhost:3000${product.imageUrl}`
           : product.imageUrl || "";
+
+        const hoverSrc = product.imageUrl2?.startsWith("/product-images/")
+          ? `http://localhost:3000${product.imageUrl2}`
+          : product.imageUrl2 || "";
 
         const isAdded = justAdded[product.id];
 
         return (
           <div key={product.id} className="product-card">
-            {/* Wrap image and name in a Link to the product detail page */}
+            {/* Link around the image + name */}
             <Link to={`/product/${product.slug}`} className="product-link">
-              <div className="product-image">
-                {imageSrc ? (
-                  <img src={imageSrc} alt={product.name} />
+              <div className="image-wrapper">
+                {/* Main image */}
+                {mainSrc ? (
+                  <img className="main-img" src={mainSrc} alt={product.name} />
                 ) : (
                   <div className="no-image">No image</div>
+                )}
+
+                {/* Hover image if available */}
+                {product.imageUrl2 && hoverSrc && (
+                  <img className="hover-img" src={hoverSrc} alt={`${product.name} alt2`} />
                 )}
               </div>
               <h2>{product.name}</h2>
             </Link>
+
             <p>{product.price} SEK</p>
             <button
               className={`add-to-cart-btn ${isAdded ? "added" : ""}`}
