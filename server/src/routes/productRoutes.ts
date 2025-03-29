@@ -7,24 +7,12 @@
  * 
  *****************************************************************************/
 
-import { Router, Request, Response } from 'express';
-import multer, { StorageEngine } from 'multer';
-import path from 'path';
-import { initDB } from '../db';
-
-interface ProductUpdateBody {
-  name?: string;
-  description?: string;
-  price?: number;
-  sku?: string;
-  imageUrl?: string;   // External image link
-  imagePath?: string;  // We store final local path (if file is uploaded)
-  publishDate?: string;
-  slug?: string;
-}
+import { Router, Request, Response } from 'express';     // Express = backend framework
+import multer, { StorageEngine } from 'multer';          // För att hantera filuppladdningar
+import { initDB } from '../db';                          // Din databas-koppling (SQLite)
 
 /*****************************************************************************
- * Multer setup for file uploads (unchanged).
+ * Multer setup for file uploads
  *****************************************************************************/
 const storage: StorageEngine = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -238,7 +226,7 @@ async function updateProductBySlug(req: Request<{ slug: string }>, res: Response
     const db = await initDB();
     const result = await db.run(`
       UPDATE products
-      SET name        = COALESCE(?, name),
+      SET name        = (?, name),
           description = COALESCE(?, description),
           price       = COALESCE(?, price),
           sku         = COALESCE(?, sku),
