@@ -1,36 +1,35 @@
-// -----------------------------------------------------------------------------
-// Inline module declaration for 'sqlite'
-// -----------------------------------------------------------------------------
-// Since the 'sqlite' package might not come with built-in TypeScript types,
-// we declare the expected structure manually so TypeScript knows how to handle it.
+// So TypeScript knows how to cooperate with sqlite
 
 declare module 'sqlite' {
-  interface OpenParams {
-    filename: string; // Path to the database file
-    driver: any;      // The database engine to use (e.g., sqlite3.Database)
+   interface OpenParams {
+    filename: string; // Where to save the database file (e.g. './freaky-fashion.db')
+    driver: any;      // What kind of database we use (usually sqlite3.Database)
   }
 
-  // This function opens or creates a SQLite database connection
-  export function open(config: OpenParams): Promise<any>;
+
 }
 
 // -----------------------------------------------------------------------------
 // Imports
 // -----------------------------------------------------------------------------
 
-// Import the low-level SQLite3 database driver
+
+// It's the part that knows how to read/write to a .db file on your computer
 import sqlite3 from 'sqlite3';
 
-// Import the high-level 'open' function from the 'sqlite' wrapper,
-// which provides a cleaner, Promise-based interface
+
+// The 'Open' function helps you talk to the database in an easier way
+// You don’t need to use complicated functions or steps — it's simpler and cleaner
 import { open } from 'sqlite';
+
 
 // -----------------------------------------------------------------------------
 // Database Initialization Function
 // -----------------------------------------------------------------------------
 
 /**
- * Initializes the SQLite database.
+ * Initializes the SQLite database. (Start and prepare the database so it’s ready to be used.)
+
  * - Connects to (or creates) the 'freaky-fashion.db' file.
  * - Ensures the 'products' table exists with the correct schema.
  */

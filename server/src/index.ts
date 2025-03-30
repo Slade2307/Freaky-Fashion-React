@@ -42,17 +42,16 @@ app.use(express.json());
 // Example: http://localhost:3000/product-images/shirt.jpg
 app.use('/product-images', express.static('product-images'));
 
-// -----------------------------------------------------------------------------
-// Root route for quick testing
-// -----------------------------------------------------------------------------
+
+
 // This is just a friendly message when someone visits the root URL
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello from the backend! Access the product API at /api/products');
 });
 
-// -----------------------------------------------------------------------------
+
 // Mount the product API routes under /api/products
-// -----------------------------------------------------------------------------
+
 // This means all routes defined in productRoutes.ts will start with /api/products
 app.use('/api/products', productRouter);
 
