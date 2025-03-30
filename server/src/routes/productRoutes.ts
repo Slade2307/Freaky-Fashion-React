@@ -1,29 +1,38 @@
-/***************************************************************************** 
+/*****************************************************************************
  *                          productRoutes.ts
  * 
  * This file handles all product-related CRUD operations, including image 
  * upload via Multer and serving local images as full URLs. It also introduces
  * "quantity" for shopping-cart compatibility.
- * 
  *****************************************************************************/
 
-import { Router, Request, Response } from 'express';     // Express = backend framework
-import multer, { StorageEngine } from 'multer';          // För att hantera filuppladdningar
-import { initDB } from '../db';                          // Din databas-koppling (SQLite)
+// Import Express router and types for request/response
+import { Router, Request, Response } from 'express';     
+
+// Import Multer (used for handling file uploads)
+import multer, { StorageEngine } from 'multer';          
+
+// Import your database connection function
+import { initDB } from '../db';                          
+
 
 /*****************************************************************************
  * Multer setup for file uploads
  *****************************************************************************/
+
 const storage: StorageEngine = multer.diskStorage({
+  // Set upload folder
   destination: (req, file, cb) => {
     cb(null, 'product-images');
   },
+  // Create a unique filename to avoid overwriting
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     cb(null, uniqueSuffix + '-' + file.originalname);
   },
 });
 const upload = multer({ storage });
+
 
 /*****************************************************************************
  * Helper: generateSlug()
@@ -32,10 +41,11 @@ function generateSlug(name: string): string {
   return name
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replace(/[^\w\s-]/g, '')       // remove special characters
+    .replace(/[\s_-]+/g, '-')       // replace spaces and underscores with dashes
+    .replace(/^-+|-+$/g, '');       // remove leading/trailing dashes
 }
+
 
 /*****************************************************************************
  * Helper: transformMultipleImages(product)
@@ -44,13 +54,16 @@ function transformMultipleImages(product: any): any {
   if (!product) return product;
 
   const fields = ["imagePath", "imagePath2", "imagePath3", "imagePath4", "imagePath5"];
+
   fields.forEach((field) => {
     if (product[field]) {
+      const urlField = field.replace("Path", "Url");
+      // If local path, prefix it with server URL
       if (product[field].startsWith('/product-images')) {
-        const urlField = field.replace("Path", "Url"); 
         product[urlField] = `http://localhost:3000${product[field]}`;
-      } else if (product[field].startsWith('http')) {
-        const urlField = field.replace("Path", "Url");
+      }
+      // If it's already a full URL, keep it
+      else if (product[field].startsWith('http')) {
         product[urlField] = product[field];
       }
     }
@@ -58,6 +71,7 @@ function transformMultipleImages(product: any): any {
 
   return product;
 }
+
 
 /***************************************************************************** 
  *  GET /api/products 
@@ -86,8 +100,10 @@ async function getAllProducts(req: Request, res: Response): Promise<void> {
       ORDER BY sortOrder
     `);
 
+    // Convert image paths to full URLs
     const transformed = products.map(transformMultipleImages);
-    res.json(transformed);
+
+    res.json(transformed); // Send to client
   } catch (error) {
     console.error("Error fetching products:", error);
     res.status(500).json({ error: "Failed to fetch products" });
@@ -152,7 +168,9 @@ async function createProduct(req: Request, res: Response): Promise<void> {
     } = req.body;
 
     let finalImagePath = "";
-    // @ts-ignore: Multer adds file
+
+    // Handle file upload OR use image URL from body
+    // @ts-ignore: Multer adds `file` property
     if (req.file) {
       finalImagePath = "/product-images/" + req.file.filename;
     } else if (imageUrl && imageUrl.trim() !== "") {
@@ -164,8 +182,10 @@ async function createProduct(req: Request, res: Response): Promise<void> {
       return;
     }
 
+    // Generate slug if not provided
     const finalSlug = slug || generateSlug(name);
 
+    // Insert new product into DB
     const db = await initDB();
     const result = await db.run(`
       INSERT INTO products 
@@ -183,8 +203,10 @@ async function createProduct(req: Request, res: Response): Promise<void> {
       quantity || 1,
     ]);
 
+    // Fetch the newly inserted product
     const newProduct = await db.get('SELECT * FROM products WHERE id = ?', [result.lastID]);
     const transformed = transformMultipleImages(newProduct);
+
     res.status(201).json(transformed);
   } catch (error) {
     console.error('Error adding product:', error);
@@ -199,6 +221,7 @@ async function updateProductBySlug(req: Request<{ slug: string }>, res: Response
   try {
     const { slug } = req.params;
 
+    // Get updated values from request body
     const {
       name,
       description,
@@ -214,6 +237,7 @@ async function updateProductBySlug(req: Request<{ slug: string }>, res: Response
       sortOrder,
     } = req.body;
 
+    // Helper to clean empty image URLs
     function toFinalPath(url?: string): string {
       return url && url.trim() !== '' ? url.trim() : '';
     }
@@ -223,7 +247,10 @@ async function updateProductBySlug(req: Request<{ slug: string }>, res: Response
     const finalImagePath4 = toFinalPath(imageUrl4);
     const finalImagePath5 = toFinalPath(imageUrl5);
 
+    
     const db = await initDB();
+
+    // Update product in the database (only if new value is provided)
     const result = await db.run(`
       UPDATE products
       SET name        = (?, name),
@@ -271,6 +298,7 @@ async function updateProductBySlug(req: Request<{ slug: string }>, res: Response
       return;
     }    
 
+    // Fetch updated product and return it
     const updatedProduct = await db.get('SELECT * FROM products WHERE slug = ?', [slug]);
     const transformed = transformMultipleImages(updatedProduct);
     res.json(transformed);
@@ -305,10 +333,12 @@ async function deleteProductBySlug(req: Request<{ slug: string }>, res: Response
  *****************************************************************************/
 const router = Router();
 
+// Define API routes and attach the correct handler functions
 router.get('/', getAllProducts);
 router.get('/:slug', getProductBySlug);
 router.post('/', upload.single('imageFile'), createProduct);
 router.put('/:slug', updateProductBySlug);
 router.delete('/:slug', deleteProductBySlug);
 
+// Export this router so it can be used in your server
 export default router;

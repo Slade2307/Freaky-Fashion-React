@@ -1,7 +1,15 @@
+// -----------------------------------------------------------------------------
 // src/pages/Checkout/Checkout.tsx
+// Renders the checkout page with customer form and order summary
+// -----------------------------------------------------------------------------
+
 import { useState } from "react";
 import { useCart } from "../Cart/CartContext";
 import "./Checkout.css";
+
+// -----------------------------------------------------------------------------
+// Type Definitions (used locally for cart calculation)
+// -----------------------------------------------------------------------------
 
 type CartItem = {
   id: number;
@@ -11,16 +19,20 @@ type CartItem = {
   imageUrl?: string;
 };
 
+// -----------------------------------------------------------------------------
+// Checkout Component
+// -----------------------------------------------------------------------------
+
 function Checkout() {
   const { cart } = useCart();
 
-  // Basic form fields (expand as needed)
+  // Customer details
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
 
-  // Shipping or payment selections
+  // Shipping & payment method selections
   const [shippingMethod, setShippingMethod] = useState("standard");
   const [paymentMethod, setPaymentMethod] = useState("card");
 
@@ -28,11 +40,17 @@ function Checkout() {
   const totalItems = cart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
   const totalPrice = cart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0);
 
-  // Example submit handler
+  // Handle form submit
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Validate & handle order submission here
-    console.log("Submitting order", { name, email, address, phone, shippingMethod, paymentMethod });
+    console.log("Submitting order", {
+      name,
+      email,
+      address,
+      phone,
+      shippingMethod,
+      paymentMethod,
+    });
   };
 
   return (
@@ -41,7 +59,9 @@ function Checkout() {
       <p className="checkout-subtitle">Antal varor: {totalItems}</p>
 
       <div className="checkout-layout">
-        {/* LEFT: Checkout form */}
+        {/* ---------------------------------------------------------------------
+           LEFT: Checkout Form
+        --------------------------------------------------------------------- */}
         <form className="checkout-form" onSubmit={handleSubmit}>
           <h2>Kunduppgifter</h2>
 
@@ -134,9 +154,12 @@ function Checkout() {
           </button>
         </form>
 
-        {/* RIGHT: Order summary */}
+        {/* ---------------------------------------------------------------------
+           RIGHT: Order Summary
+        --------------------------------------------------------------------- */}
         <div className="checkout-summary">
           <h2>Orderöversikt</h2>
+
           <div className="summary-list">
             {cart.map((item) => (
               <div key={item.id} className="summary-row">
@@ -145,12 +168,11 @@ function Checkout() {
               </div>
             ))}
           </div>
+
           <div className="summary-total">
             <div className="summary-row">
               <span>Frakt:</span>
-              <span>
-                {shippingMethod === "express" ? "99.00" : "49.00"} SEK
-              </span>
+              <span>{shippingMethod === "express" ? "99.00" : "49.00"} SEK</span>
             </div>
             <div className="summary-row total">
               <strong>Totalt:</strong>

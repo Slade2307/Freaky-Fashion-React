@@ -1,6 +1,15 @@
-// CartContext.tsx
+// -----------------------------------------------------------------------------
+// useCart.tsx
+// Manages cart state globally using React Context
+// -----------------------------------------------------------------------------
+
 import { createContext, useContext, useState, ReactNode } from "react";
 
+// -----------------------------------------------------------------------------
+// Type Definitions
+// -----------------------------------------------------------------------------
+
+// Represents a product in the cart
 type CartItem = {
   id: number;
   name: string;
@@ -9,6 +18,7 @@ type CartItem = {
   imageUrl?: string;
 };
 
+// Represents the context value and its functions
 type CartContextType = {
   cart: CartItem[];
   addToCart: (product: CartItem) => void;
@@ -18,12 +28,21 @@ type CartContextType = {
   getTotalPrice: () => number;
 };
 
-// ✅ Export the CartContext so you can import it in `useCart.tsx`
+// -----------------------------------------------------------------------------
+// Create CartContext
+// -----------------------------------------------------------------------------
+
 export const CartContext = createContext<CartContextType | undefined>(undefined);
+
+// -----------------------------------------------------------------------------
+// CartProvider
+// Wraps the app and provides the cart functionality to all components
+// -----------------------------------------------------------------------------
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
 
+  // Add product to cart, or update quantity if it already exists
   const addToCart = (product: CartItem) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === product.id);
@@ -38,6 +57,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  // Update quantity of a product in the cart
   const updateQuantity = (id: number, quantity: number) => {
     setCart((prevCart) =>
       prevCart.map((item) =>
@@ -46,18 +66,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
+  // Remove a product from the cart by ID
   const removeFromCart = (id: number) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== id));
   };
 
+  // Clear the entire cart
   const clearCart = () => {
     setCart([]);
   };
 
+  // Calculate the total price of all items in the cart
   const getTotalPrice = () => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   };
 
+  // Provide all values/functions to context consumers
   return (
     <CartContext.Provider
       value={{
@@ -74,7 +98,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Optional custom hook for convenience (if you want it here):
+// -----------------------------------------------------------------------------
+// useCart Hook
+// Allows components to access cart context
+// -----------------------------------------------------------------------------
+
 export const useCart = (): CartContextType => {
   const context = useContext(CartContext);
   if (!context) {

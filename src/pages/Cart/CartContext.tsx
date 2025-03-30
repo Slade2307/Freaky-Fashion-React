@@ -1,5 +1,14 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
- 
+// -----------------------------------------------------------------------------
+// CartContext.tsx
+// Manages global cart state and logic for adding, updating, removing items
+// -----------------------------------------------------------------------------
+
+import { createContext, useContext, useState, ReactNode } from "react";
+
+// -----------------------------------------------------------------------------
+// Type Definitions
+// -----------------------------------------------------------------------------
+
 type CartItem = {
   id: number;
   name: string;
@@ -7,7 +16,7 @@ type CartItem = {
   quantity: number;
   imageUrl?: string;
 };
- 
+
 type CartContextType = {
   cart: CartItem[];
   addToCart: (product: CartItem) => void;
@@ -16,22 +25,17 @@ type CartContextType = {
   clearCart: () => void;
   getTotalPrice: () => number;
 };
- 
-const CartContext = createContext<CartContextType | undefined>(undefined);
- 
+
+// -----------------------------------------------------------------------------
+// Context + Provider
+// -----------------------------------------------------------------------------
+
+export const CartContext = createContext<CartContextType | undefined>(undefined);
+
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  // Initialize cart from localStorage
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    const storedCart = localStorage.getItem("cart");
-    return storedCart ? JSON.parse(storedCart) : [];
-  });
- 
-  // Sync cart to localStorage on update
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
- 
-  // Add item to cart
+  const [cart, setCart] = useState<CartItem[]>([]);
+
+  // Add item or update quantity if it already exists
   const addToCart = (product: CartItem) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === product.id);
@@ -45,8 +49,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return [...prevCart, product];
     });
   };
- 
-  // Update quantity
+
+  // Update item quantity
   const updateQuantity = (id: number, quantity: number) => {
     setCart((prevCart) =>
       prevCart.map((item) =>
@@ -54,33 +58,42 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       )
     );
   };
- 
-  // Remove item from cart
+
+  // Remove item by ID
   const removeFromCart = (id: number) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== id));
   };
- 
+
   // Clear entire cart
   const clearCart = () => {
     setCart([]);
-    localStorage.removeItem("cart"); // Clear from localStorage as well
   };
- 
-  // Get total price
+
+  // Calculate total price
   const getTotalPrice = () => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   };
- 
+
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, updateQuantity, removeFromCart, clearCart, getTotalPrice }}
+      value={{
+        cart,
+        addToCart,
+        updateQuantity,
+        removeFromCart,
+        clearCart,
+        getTotalPrice,
+      }}
     >
       {children}
     </CartContext.Provider>
   );
 };
- 
-// Custom Hook for easy usage
+
+// -----------------------------------------------------------------------------
+// Custom Hook
+// -----------------------------------------------------------------------------
+
 export const useCart = (): CartContextType => {
   const context = useContext(CartContext);
   if (!context) {

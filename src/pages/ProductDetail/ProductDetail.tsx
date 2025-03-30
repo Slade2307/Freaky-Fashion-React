@@ -1,4 +1,8 @@
+// -----------------------------------------------------------------------------
 // src/pages/ProductDetail/ProductDetail.tsx
+// Displays detailed view of a single product with image thumbnails and carousel
+// -----------------------------------------------------------------------------
+
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useCart } from "../Cart/CartContext";
@@ -8,18 +12,26 @@ import AliceCarousel from "react-alice-carousel";
 import "react-alice-carousel/lib/alice-carousel.css";
 import "./ProductDetail.css";
 
+// -----------------------------------------------------------------------------
+// Type Definitions
+// -----------------------------------------------------------------------------
+
 interface Product {
   id: number;
   slug: string;
   name: string;
   description: string;
   price: number;
-  imageUrl?: string;   // main image
+  imageUrl?: string;
   imageUrl2?: string;
   imageUrl3?: string;
   imageUrl4?: string;
   imageUrl5?: string;
 }
+
+// -----------------------------------------------------------------------------
+// ProductDetail Component
+// -----------------------------------------------------------------------------
 
 function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -28,24 +40,23 @@ function ProductDetail() {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [justAdded, setJustAdded] = useState(false);
 
-  const [justAdded, setJustAdded] = useState(false); 
-  const { addToCart } = useCart(); 
+  const { addToCart } = useCart();
 
-  // 1) Fetch the current product
+  // ---------------------------------------------------------------------------
+  // 1) Fetch current product by slug
+  // ---------------------------------------------------------------------------
+
   useEffect(() => {
     if (!slug) return;
 
     const fetchProduct = async () => {
       try {
         const res = await fetch(`http://localhost:3000/api/products/${slug}`, { mode: "cors" });
-        if (!res.ok) {
-          throw new Error(`Failed to fetch product: ${res.status} ${res.statusText}`);
-        }
+        if (!res.ok) throw new Error(`Failed to fetch product: ${res.status} ${res.statusText}`);
         const data: Product = await res.json();
         setProduct(data);
-
-        // Default main image is imageUrl or blank
         setMainImage(data.imageUrl || "");
       } catch (err: any) {
         setError(err.message);
@@ -57,21 +68,19 @@ function ProductDetail() {
     fetchProduct();
   }, [slug]);
 
-  // 2) Fetch all products, exclude current, pick random subset
+  // ---------------------------------------------------------------------------
+  // 2) Fetch related products (excluding the current one)
+  // ---------------------------------------------------------------------------
+
   useEffect(() => {
     if (!product) return;
 
     const fetchAllProducts = async () => {
       try {
         const res = await fetch("http://localhost:3000/api/products", { mode: "cors" });
-        if (!res.ok) {
-          throw new Error(`Failed to fetch all products: ${res.status} ${res.statusText}`);
-        }
+        if (!res.ok) throw new Error(`Failed to fetch all products: ${res.status} ${res.statusText}`);
         const allProducts: Product[] = await res.json();
-
-        // Filter out the current product
         const others = allProducts.filter((p) => p.id !== product.id);
-        // Shuffle & pick up to 5
         const randomSubset = others.sort(() => 0.5 - Math.random()).slice(0, 5);
         setRelatedProducts(randomSubset);
       } catch (err: any) {
@@ -82,40 +91,29 @@ function ProductDetail() {
     fetchAllProducts();
   }, [product]);
 
-  if (loading) {
-    return <div className="product-detail">Laddar produkt...</div>;
-  }
-  if (error) {
-    return <div className="product-detail">Fel: {error}</div>;
-  }
-  if (!product) {
-    return <div className="product-detail">Ingen produkt hittades.</div>;
-  }
+  // ---------------------------------------------------------------------------
+  // 3) Add product to cart
+  // ---------------------------------------------------------------------------
 
-  // 3) Add to cart
   const handleAddToCart = () => {
     if (!product) return;
-  
     addToCart({ ...product, quantity: 1 });
     setJustAdded(true);
-  
-    // Reset after 2 seconds
-    setTimeout(() => {
-      setJustAdded(false);
-    }, 2000);
+    setTimeout(() => setJustAdded(false), 2000);
   };
-  
 
-  // Gather all non-empty images into an array for thumbnails
+  // ---------------------------------------------------------------------------
+  // 4) Handle images and carousel items
+  // ---------------------------------------------------------------------------
+
   const allImages = [
-    product.imageUrl,
-    product.imageUrl2,
-    product.imageUrl3,
-    product.imageUrl4,
-    product.imageUrl5,
+    product?.imageUrl,
+    product?.imageUrl2,
+    product?.imageUrl3,
+    product?.imageUrl4,
+    product?.imageUrl5,
   ].filter(Boolean) as string[];
 
-  // 4) Build carousel items for related products
   const carouselItems = relatedProducts.map((prod) => (
     <Link
       key={prod.id}
@@ -133,15 +131,24 @@ function ProductDetail() {
     </Link>
   ));
 
+  // ---------------------------------------------------------------------------
+  // Render loading/error states
+  // ---------------------------------------------------------------------------
+
+  if (loading) return <div className="product-detail">Laddar produkt...</div>;
+  if (error) return <div className="product-detail">Fel: {error}</div>;
+  if (!product) return <div className="product-detail">Ingen produkt hittades.</div>;
+
+  // ---------------------------------------------------------------------------
+  // Component JSX
+  // ---------------------------------------------------------------------------
+
   return (
     <>
-      {/* Header with dummy props */}
-      <Header
-        searchTerm=""
-        onSearchChange={() => {}}
-      />
+      {/* Header */}
+      <Header searchTerm="" onSearchChange={() => {}} />
 
-      {/* Main product detail section */}
+      {/* Product Info */}
       <section className="product-detail">
         <div className="product-detail-image">
           {mainImage ? (
@@ -150,25 +157,26 @@ function ProductDetail() {
             <div className="no-image">Ingen bild</div>
           )}
         </div>
+
         <div className="product-detail-info">
           <h1>{product.name}</h1>
           <p className="product-price">{product.price} SEK</p>
           <p className="product-description">{product.description}</p>
+
           <button
-              className={`add-to-cart-btn ${justAdded ? "added" : ""}`}
-              onClick={handleAddToCart}
-            >
-              {justAdded ? (
-                <>
-                  <span className="checkmark">✔</span> Tillagd i kundvagn
-                </>
-              ) : (
-                "Lägg i varukorg"
-              )}
-            </button>
+            className={`add-to-cart-btn ${justAdded ? "added" : ""}`}
+            onClick={handleAddToCart}
+          >
+            {justAdded ? (
+              <>
+                <span className="checkmark">✔</span> Tillagd i kundvagn
+              </>
+            ) : (
+              "Lägg i varukorg"
+            )}
+          </button>
 
-
-          {/* Thumbnails row if we have multiple images */}
+          {/* Thumbnails */}
           {allImages.length > 1 && (
             <div className="product-thumbnails">
               {allImages.map((url, idx) => (
@@ -185,7 +193,7 @@ function ProductDetail() {
         </div>
       </section>
 
-      {/* Carousel section */}
+      {/* Related Products Carousel */}
       <section className="related-products">
         <h2>Liknande produkter</h2>
         {relatedProducts.length === 0 ? (
@@ -202,13 +210,13 @@ function ProductDetail() {
               0: { items: 1 },
               600: { items: 2 },
               800: { items: 3 },
-              1200: { items: 5 },  // For screens 1200px and above, show 5 items
+              1200: { items: 5 },
             }}
           />
         )}
       </section>
 
-      {/* Footer at the bottom */}
+      {/* Footer */}
       <Footer />
     </>
   );
