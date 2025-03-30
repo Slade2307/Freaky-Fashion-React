@@ -26,15 +26,24 @@ type CartItem = {
 function Checkout() {
   const { cart } = useCart();
 
-  // Customer details
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
-  const [phone, setPhone] = useState("");
+ // -----------------------------------------------------------------------------
+// Customer form fields — these store what the user types into the inputs - 
+// useState lets your component remember a value and update it later.
+// -----------------------------------------------------------------------------
 
-  // Shipping & payment method selections
-  const [shippingMethod, setShippingMethod] = useState("standard");
-  const [paymentMethod, setPaymentMethod] = useState("card");
+const [name, setName] = useState("");       // Stores the "Namn" input
+const [email, setEmail] = useState("");     // Stores the "E-post" input
+const [address, setAddress] = useState(""); // Stores the "Adress" input
+const [phone, setPhone] = useState("");     // Stores the "Telefon" input
+
+
+// -----------------------------------------------------------------------------
+// Selected options for shipping and payment
+// -----------------------------------------------------------------------------
+
+const [shippingMethod, setShippingMethod] = useState("standard"); // Default is "standard" shipping
+const [paymentMethod, setPaymentMethod] = useState("card");       // Default is "card" payment
+
 
   // Calculate total items and total price
   const totalItems = cart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);

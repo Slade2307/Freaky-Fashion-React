@@ -13,65 +13,72 @@ import "react-alice-carousel/lib/alice-carousel.css";
 import "./ProductDetail.css";
 
 // -----------------------------------------------------------------------------
-// Type Definitions
+// TypeScript Interface: Defines the structure of a Product object
+// This is NOT real data — it's just a description TypeScript uses to check types
 // -----------------------------------------------------------------------------
 
 interface Product {
-  id: number;
-  slug: string;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl?: string;
-  imageUrl2?: string;
+  id: number;            // Product ID (must be a number)
+  slug: string;          // URL-safe product name, e.g. "grey-rug"
+  name: string;          // Display name shown in the UI
+  description: string;   // Description text
+  price: number;         // Price in number format (e.g. 499)
+
+  // Optional images (question mark means they’re not required)
+  imageUrl?: string;     // Main product image
+  imageUrl2?: string;    // Extra images (hover, gallery, etc.)
   imageUrl3?: string;
   imageUrl4?: string;
   imageUrl5?: string;
 }
 
+
 // -----------------------------------------------------------------------------
-// ProductDetail Component
+// ProductDetail Component – Shows one product with info, images, and suggestions
 // -----------------------------------------------------------------------------
 
 function ProductDetail() {
+  // 🧾 Get the "slug" from the URL (e.g. /product/soft-grey-rug → "soft-grey-rug")
   const { slug } = useParams<{ slug: string }>();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [mainImage, setMainImage] = useState<string>("");
-  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [justAdded, setJustAdded] = useState(false);
 
-  const { addToCart } = useCart();
+  // 🧠 Create memory (state) to hold and update values in the component
+
+  const [product, setProduct] = useState<Product | null>(null); // Current product info
+  const [mainImage, setMainImage] = useState<string>("");       // Main image URL
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]); // Related products list. // 🔹 The empty array [] means: "Start with no related products yet"
+  const [loading, setLoading] = useState(true);                 // Loading state (true when fetching)
+  const [error, setError] = useState("");                       // Error message if something fails
+  const [justAdded, setJustAdded] = useState(false);            // Show "added to cart" animation
+
+  const { addToCart } = useCart(); // Get the addToCart function from Cart Context
 
   // ---------------------------------------------------------------------------
-  // 1) Fetch current product by slug
+  // 1) Fetch the current product using the slug from the URL
   // ---------------------------------------------------------------------------
-
   useEffect(() => {
-    if (!slug) return;
+    if (!slug) return; // Stop if no slug found
 
     const fetchProduct = async () => {
       try {
         const res = await fetch(`http://localhost:3000/api/products/${slug}`, { mode: "cors" });
         if (!res.ok) throw new Error(`Failed to fetch product: ${res.status} ${res.statusText}`);
-        const data: Product = await res.json();
-        setProduct(data);
-        setMainImage(data.imageUrl || "");
+
+        const data: Product = await res.json(); // Convert response to Product object
+        setProduct(data);                       // Save product info to state
+        setMainImage(data.imageUrl || "");      // Set the main image (fallback to "")
       } catch (err: any) {
-        setError(err.message);
+        setError(err.message);                  // Save error message if something fails
       } finally {
-        setLoading(false);
+        setLoading(false);                      // Turn off loading spinner
       }
     };
 
     fetchProduct();
-  }, [slug]);
+  }, [slug]); 
 
   // ---------------------------------------------------------------------------
   // 2) Fetch related products (excluding the current one)
   // ---------------------------------------------------------------------------
-
   useEffect(() => {
     if (!product) return;
 
@@ -79,10 +86,16 @@ function ProductDetail() {
       try {
         const res = await fetch("http://localhost:3000/api/products", { mode: "cors" });
         if (!res.ok) throw new Error(`Failed to fetch all products: ${res.status} ${res.statusText}`);
+
         const allProducts: Product[] = await res.json();
+
+        // Filter out the current product
         const others = allProducts.filter((p) => p.id !== product.id);
+
+        // Randomize and select max 5 products
         const randomSubset = others.sort(() => 0.5 - Math.random()).slice(0, 5);
-        setRelatedProducts(randomSubset);
+
+        setRelatedProducts(randomSubset); // Save related products to state
       } catch (err: any) {
         console.error("Error fetching related products:", err.message);
       }
@@ -92,28 +105,30 @@ function ProductDetail() {
   }, [product]);
 
   // ---------------------------------------------------------------------------
-  // 3) Add product to cart
+  // 3) Add product to cart when button is clicked
   // ---------------------------------------------------------------------------
-
   const handleAddToCart = () => {
     if (!product) return;
-    addToCart({ ...product, quantity: 1 });
-    setJustAdded(true);
+
+    addToCart({ ...product, quantity: 1 }); // Add product to cart with quantity 1
+    setJustAdded(true);                     // Show ✔ checkmark
+
+    // Hide checkmark after 2 seconds
     setTimeout(() => setJustAdded(false), 2000);
   };
 
   // ---------------------------------------------------------------------------
-  // 4) Handle images and carousel items
+  // 4) Get all product images (ignore empty ones)
   // ---------------------------------------------------------------------------
-
   const allImages = [
     product?.imageUrl,
     product?.imageUrl2,
     product?.imageUrl3,
     product?.imageUrl4,
     product?.imageUrl5,
-  ].filter(Boolean) as string[];
+  ].filter(Boolean) as string[]; // Only keep defined image URLs
 
+  // Generate items for the related products carousel
   const carouselItems = relatedProducts.map((prod) => (
     <Link
       key={prod.id}
@@ -132,24 +147,23 @@ function ProductDetail() {
   ));
 
   // ---------------------------------------------------------------------------
-  // Render loading/error states
+  // 5) Handle loading, error or product not found state
   // ---------------------------------------------------------------------------
-
   if (loading) return <div className="product-detail">Laddar produkt...</div>;
   if (error) return <div className="product-detail">Fel: {error}</div>;
   if (!product) return <div className="product-detail">Ingen produkt hittades.</div>;
 
   // ---------------------------------------------------------------------------
-  // Component JSX
+  // 6) Main layout of the product detail page
   // ---------------------------------------------------------------------------
-
   return (
     <>
-      {/* Header */}
+      {/* Top header bar */}
       <Header searchTerm="" onSearchChange={() => {}} />
 
-      {/* Product Info */}
+      {/* Main product section */}
       <section className="product-detail">
+        {/* Left: Main product image */}
         <div className="product-detail-image">
           {mainImage ? (
             <img src={mainImage} alt={product.name} />
@@ -158,11 +172,13 @@ function ProductDetail() {
           )}
         </div>
 
+        {/* Right: Info, price, description, button */}
         <div className="product-detail-info">
           <h1>{product.name}</h1>
           <p className="product-price">{product.price} SEK</p>
           <p className="product-description">{product.description}</p>
 
+          {/* Add to cart button with optional checkmark animation */}
           <button
             className={`add-to-cart-btn ${justAdded ? "added" : ""}`}
             onClick={handleAddToCart}
@@ -176,7 +192,7 @@ function ProductDetail() {
             )}
           </button>
 
-          {/* Thumbnails */}
+          {/* Thumbnails below if there are extra images */}
           {allImages.length > 1 && (
             <div className="product-thumbnails">
               {allImages.map((url, idx) => (
@@ -185,7 +201,7 @@ function ProductDetail() {
                   src={url}
                   alt={`Thumbnail ${idx + 1}`}
                   className="product-thumb"
-                  onClick={() => setMainImage(url)}
+                  onClick={() => setMainImage(url)} // Change main image on click
                 />
               ))}
             </div>
@@ -193,7 +209,7 @@ function ProductDetail() {
         </div>
       </section>
 
-      {/* Related Products Carousel */}
+      {/* Related product carousel */}
       <section className="related-products">
         <h2>Liknande produkter</h2>
         {relatedProducts.length === 0 ? (
@@ -216,10 +232,12 @@ function ProductDetail() {
         )}
       </section>
 
-      {/* Footer */}
+      {/* Footer at the bottom */}
       <Footer />
     </>
   );
 }
 
 export default ProductDetail;
+
+
