@@ -1,83 +1,93 @@
 // -----------------------------------------------------------------------------
 // src/pages/ProductDetail/ProductDetail.tsx
-// Displays detailed view of a single product with image thumbnails and carousel
+// Visar en enskild produkts detaljer som bilder, namn, pris, beskrivning m.m.
 // -----------------------------------------------------------------------------
 
+// 📦 React Hooks — useState = lagrar minne, useEffect = kör kod när sidan laddas
 import { useEffect, useState } from "react";
+
+// 🌐 useParams = hämtar texten från URL (ex: /product/matta → slug = "matta")
+// Link = gör så vi kan klicka och byta sida utan att ladda om
 import { useParams, Link } from "react-router-dom";
+
+// 🛒 useCart = vår globala "kundvagn", här kan vi lägga till produkter
 import { useCart } from "../Cart/CartContext";
+
+// 🧱 Layout-komponenter (topp och botten på sidan)
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+
+// 🎠 AliceCarousel = färdig kod för att visa ett bildspel med produkter
 import AliceCarousel from "react-alice-carousel";
 import "react-alice-carousel/lib/alice-carousel.css";
+
+// 🎨 CSS-stil för sidan
 import "./ProductDetail.css";
 
 // -----------------------------------------------------------------------------
-// TypeScript Interface: Defines the structure of a Product object
-// This is NOT real data — it's just a description TypeScript uses to check types
+// Typ-definition: hur en "Product" ska se ut (endast för TypeScript kontroll)
 // -----------------------------------------------------------------------------
 
 interface Product {
-  id: number;            // Product ID (must be a number)
-  slug: string;          // URL-safe product name, e.g. "grey-rug"
-  name: string;          // Display name shown in the UI
-  description: string;   // Description text
-  price: number;         // Price in number format (e.g. 499)
+  id: number;            // Produktens unika ID (nummer)
+  slug: string;          // URL-namn (t.ex. "mjuk-matta")
+  name: string;          // Produktens visningsnamn
+  description: string;   // Beskrivningstext
+  price: number;         // Pris (i SEK som ett nummer)
 
-  // Optional images (question mark means they’re not required)
-  imageUrl?: string;     // Main product image
-  imageUrl2?: string;    // Extra images (hover, gallery, etc.)
+  // ❓ Dessa är valfria (kan finnas, men måste inte)
+  imageUrl?: string;     
+  imageUrl2?: string;
   imageUrl3?: string;
   imageUrl4?: string;
   imageUrl5?: string;
 }
 
-
 // -----------------------------------------------------------------------------
-// ProductDetail Component – Shows one product with info, images, and suggestions
+// ProductDetail-komponenten — Huvudfunktionen som visar produktens sida
 // -----------------------------------------------------------------------------
 
 function ProductDetail() {
-  // 🧾 Get the "slug" from the URL (e.g. /product/soft-grey-rug → "soft-grey-rug")
+  // 🧠 Slug = produktens URL-namn (hämtas från länken)
   const { slug } = useParams<{ slug: string }>();
 
-  // 🧠 Create memory (state) to hold and update values in the component
+  // 🧠 useState = "spara och ändra värden"
+  const [product, setProduct] = useState<Product | null>(null); // Just nu visade produkten
+  const [mainImage, setMainImage] = useState<string>("");       // Stora bilden som visas
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]); // Produkter som liknar
+  const [loading, setLoading] = useState(true);                 // Visar "laddar..." när vi hämtar data
+  const [error, setError] = useState("");                       // Om något går fel, visa felmeddelande
+  const [justAdded, setJustAdded] = useState(false);            // True i 2 sek efter klick på "Lägg i varukorg"
 
-  const [product, setProduct] = useState<Product | null>(null); // Current product info
-  const [mainImage, setMainImage] = useState<string>("");       // Main image URL
-  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]); // Related products list. // 🔹 The empty array [] means: "Start with no related products yet"
-  const [loading, setLoading] = useState(true);                 // Loading state (true when fetching)
-  const [error, setError] = useState("");                       // Error message if something fails
-  const [justAdded, setJustAdded] = useState(false);            // Show "added to cart" animation
-
-  const { addToCart } = useCart(); // Get the addToCart function from Cart Context
+  // 🔌 Hämta funktionen "addToCart" från vår kundvagns-kod
+  const { addToCart } = useCart();
 
   // ---------------------------------------------------------------------------
-  // 1) Fetch the current product using the slug from the URL
+  // 1️⃣ Hämta aktuell produkt baserat på URL-slug
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    if (!slug) return; // Stop if no slug found
+    if (!slug) return;
 
     const fetchProduct = async () => {
       try {
         const res = await fetch(`http://localhost:3000/api/products/${slug}`, { mode: "cors" });
-        if (!res.ok) throw new Error(`Failed to fetch product: ${res.status} ${res.statusText}`);
+        if (!res.ok) throw new Error(`Misslyckades att hämta: ${res.status}`);
 
-        const data: Product = await res.json(); // Convert response to Product object
-        setProduct(data);                       // Save product info to state
-        setMainImage(data.imageUrl || "");      // Set the main image (fallback to "")
+        const data: Product = await res.json(); // 📥 Hämta produkt som JSON
+        setProduct(data);                       // Spara produkten i minnet
+        setMainImage(data.imageUrl || "");      // Visa första bilden (eller tom om ingen finns)
       } catch (err: any) {
-        setError(err.message);                  // Save error message if something fails
+        setError(err.message); // Visa felmeddelande
       } finally {
-        setLoading(false);                      // Turn off loading spinner
+        setLoading(false); // Sluta visa "laddar..."
       }
     };
 
     fetchProduct();
-  }, [slug]); 
+  }, [slug]); // 🔁 Kör om slug ändras
 
   // ---------------------------------------------------------------------------
-  // 2) Fetch related products (excluding the current one)
+  // 2️⃣ Hämta relaterade produkter
   // ---------------------------------------------------------------------------
   useEffect(() => {
     if (!product) return;
@@ -85,19 +95,18 @@ function ProductDetail() {
     const fetchAllProducts = async () => {
       try {
         const res = await fetch("http://localhost:3000/api/products", { mode: "cors" });
-        if (!res.ok) throw new Error(`Failed to fetch all products: ${res.status} ${res.statusText}`);
+        if (!res.ok) throw new Error(`Misslyckades att hämta produkter`);
 
         const allProducts: Product[] = await res.json();
 
-        // Filter out the current product
+        // 🧹 Ta bort produkten vi redan visar
         const others = allProducts.filter((p) => p.id !== product.id);
 
-        // Randomize and select max 5 products
+        // 🎲 Slumpa max 5 produkter att visa i karusellen
         const randomSubset = others.sort(() => 0.5 - Math.random()).slice(0, 5);
-
-        setRelatedProducts(randomSubset); // Save related products to state
+        setRelatedProducts(randomSubset);
       } catch (err: any) {
-        console.error("Error fetching related products:", err.message);
+        console.error("Fel vid hämtning av relaterade produkter:", err.message);
       }
     };
 
@@ -105,20 +114,20 @@ function ProductDetail() {
   }, [product]);
 
   // ---------------------------------------------------------------------------
-  // 3) Add product to cart when button is clicked
+  // 3️⃣ Lägg till produkt i varukorgen
   // ---------------------------------------------------------------------------
   const handleAddToCart = () => {
     if (!product) return;
 
-    addToCart({ ...product, quantity: 1 }); // Add product to cart with quantity 1
-    setJustAdded(true);                     // Show ✔ checkmark
+    addToCart({ ...product, quantity: 1 }); // 🛒 Lägg i varukorg (med 1 st)
+    setJustAdded(true); // ✅ Visa checkmark
 
-    // Hide checkmark after 2 seconds
+    // ⏱️ Dölj checkmark efter 2 sekunder
     setTimeout(() => setJustAdded(false), 2000);
   };
 
   // ---------------------------------------------------------------------------
-  // 4) Get all product images (ignore empty ones)
+  // 4️⃣ Samla alla bilder som inte är tomma
   // ---------------------------------------------------------------------------
   const allImages = [
     product?.imageUrl,
@@ -126,9 +135,9 @@ function ProductDetail() {
     product?.imageUrl3,
     product?.imageUrl4,
     product?.imageUrl5,
-  ].filter(Boolean) as string[]; // Only keep defined image URLs
+  ].filter(Boolean) as string[]; // Filtrera bort tomma
 
-  // Generate items for the related products carousel
+  // 🖼️ Skapa små klickbara kort för relaterade produkter
   const carouselItems = relatedProducts.map((prod) => (
     <Link
       key={prod.id}
@@ -147,23 +156,23 @@ function ProductDetail() {
   ));
 
   // ---------------------------------------------------------------------------
-  // 5) Handle loading, error or product not found state
+  // 5️⃣ Hantera laddning, fel eller om produkt inte finns
   // ---------------------------------------------------------------------------
   if (loading) return <div className="product-detail">Laddar produkt...</div>;
   if (error) return <div className="product-detail">Fel: {error}</div>;
   if (!product) return <div className="product-detail">Ingen produkt hittades.</div>;
 
   // ---------------------------------------------------------------------------
-  // 6) Main layout of the product detail page
+  // 6️⃣ Visa sidans innehåll (JSX)
   // ---------------------------------------------------------------------------
   return (
     <>
-      {/* Top header bar */}
+      {/* 🧱 Toppdel med logga/sökfält */}
       <Header searchTerm="" onSearchChange={() => {}} />
 
-      {/* Main product section */}
+      {/* 🛍️ Produktdetaljer */}
       <section className="product-detail">
-        {/* Left: Main product image */}
+        {/* Vänster sida: Stora bilden */}
         <div className="product-detail-image">
           {mainImage ? (
             <img src={mainImage} alt={product.name} />
@@ -172,13 +181,13 @@ function ProductDetail() {
           )}
         </div>
 
-        {/* Right: Info, price, description, button */}
+        {/* Höger sida: Namn, pris, beskrivning, knapp */}
         <div className="product-detail-info">
           <h1>{product.name}</h1>
           <p className="product-price">{product.price} SEK</p>
           <p className="product-description">{product.description}</p>
 
-          {/* Add to cart button with optional checkmark animation */}
+          {/* Knapp: Lägg i varukorg */}
           <button
             className={`add-to-cart-btn ${justAdded ? "added" : ""}`}
             onClick={handleAddToCart}
@@ -192,7 +201,7 @@ function ProductDetail() {
             )}
           </button>
 
-          {/* Thumbnails below if there are extra images */}
+          {/* Småbilder om flera finns */}
           {allImages.length > 1 && (
             <div className="product-thumbnails">
               {allImages.map((url, idx) => (
@@ -201,7 +210,7 @@ function ProductDetail() {
                   src={url}
                   alt={`Thumbnail ${idx + 1}`}
                   className="product-thumb"
-                  onClick={() => setMainImage(url)} // Change main image on click
+                  onClick={() => setMainImage(url)}
                 />
               ))}
             </div>
@@ -209,7 +218,7 @@ function ProductDetail() {
         </div>
       </section>
 
-      {/* Related product carousel */}
+      {/* 🎠 Relaterade produkter */}
       <section className="related-products">
         <h2>Liknande produkter</h2>
         {relatedProducts.length === 0 ? (
@@ -232,12 +241,10 @@ function ProductDetail() {
         )}
       </section>
 
-      {/* Footer at the bottom */}
+      {/* 🔚 Footer längst ner */}
       <Footer />
     </>
   );
 }
 
 export default ProductDetail;
-
-

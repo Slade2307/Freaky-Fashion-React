@@ -1,61 +1,70 @@
-// NewProduct.tsx
+// NewProduct.tsx – Sida för att lägga till en ny produkt
+
+// Vi importerar React så vi kan skapa komponenter och använda hooks som useState.
+// useState låter oss spara data (t.ex. formulärfält) som kan ändras över tid.
 import React, { useState } from 'react';
 import './NewProduct.css';
 
+// Själva komponenten
 function NewProduct() {
+  // useState används för att spara innehållet i formulärfälten
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     price: 0,
     sku: '',
-    imageUrl: '', // used for external URL (optional)
+    imageUrl: '',      // Valfri extern bild-URL
     publishDate: '',
-    slug: ''
+    slug: ''           // URL-vänligt namn (kan auto-genereras)
   });
-  const [file, setFile] = useState<File | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string>(''); // State for error messages
 
-  // Helper to create a slug if user leaves slug field blank
+  // useState för att spara en uppladdad bildfil
+  const [file, setFile] = useState<File | null>(null);
+
+  // useState för felmeddelanden som visas i formuläret
+  const [errorMsg, setErrorMsg] = useState<string>(''); 
+
+  // En hjälpfunktion som skapar en "slug" automatiskt från namnet
   const generateSlug = (name: string): string => {
     return name
       .toLowerCase()
       .trim()
-      .replace(/[^\w\s-]/g, '')   // Remove non-word characters
-      .replace(/[\s_-]+/g, '-')   // Replace spaces/underscores with a hyphen
-      .replace(/^-+|-+$/g, '');   // Trim leading/trailing hyphens
+      .replace(/[^\w\s-]/g, '')   // Tar bort specialtecken
+      .replace(/[\s_-]+/g, '-')   // Byter ut mellanslag/understreck mot bindestreck
+      .replace(/^-+|-+$/g, '');   // Tar bort bindestreck i början/slutet
   };
 
-  // Handle text input changes
+  // Körs varje gång användaren skriver i ett fält
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle file input changes
+  // Körs om användaren väljer en fil att ladda upp
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
     }
   };
 
-  // Handle form submission
+  // När formuläret skickas in
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg(''); // Clear any existing error
+    setErrorMsg('');
 
-    // 1) Check if user provided BOTH imageUrl and file
+    // 1) Kolla så att användaren inte laddar upp bild OCH skriver in en extern bild-URL samtidigt
     if (file && formData.imageUrl.trim() !== '') {
-      setErrorMsg("Please choose either an external Image URL or upload a file, not both.");
-      return; // Stop submission
+      setErrorMsg("Ange antingen en extern bild-URL eller ladda upp en fil – inte båda.");
+      return;
     }
 
-    // Auto-generate slug if empty
+    // Om ingen slug är ifylld, skapa en automatiskt från namnet
     let finalSlug = formData.slug;
     if (!finalSlug && formData.name) {
       finalSlug = generateSlug(formData.name);
     }
 
-    // If a file is selected, use FormData (multipart/form-data)
+    // Om användaren laddat upp en fil
     if (file) {
       const form = new FormData();
       form.append('name', formData.name);
@@ -64,10 +73,8 @@ function NewProduct() {
       form.append('sku', formData.sku);
       form.append('publishDate', formData.publishDate);
       form.append('slug', finalSlug || '');
-      // If user typed an external URL anyway (not recommended),
-      // we can still include it or ignore it. Let's include it:
-      form.append('imageUrl', formData.imageUrl);
-      form.append('imageFile', file);
+      form.append('imageUrl', formData.imageUrl); // Valfritt
+      form.append('imageFile', file);             // Bildfilen
 
       try {
         const response = await fetch('http://localhost:3000/api/products', {
@@ -75,11 +82,12 @@ function NewProduct() {
           body: form
         });
         if (!response.ok) {
-          throw new Error(`Failed to add product, status: ${response.status}`);
+          throw new Error(`Misslyckades att lägga till produkt, status: ${response.status}`);
         }
         const newProduct = await response.json();
-        console.log('Product created:', newProduct);
-        // Clear form and file
+        console.log('Produkt skapad:', newProduct);
+
+        // Töm fält efter lyckad inlämning
         setFormData({
           name: '',
           description: '',
@@ -91,11 +99,12 @@ function NewProduct() {
         });
         setFile(null);
       } catch (err) {
-        console.error('Error adding product:', err);
-        setErrorMsg('Error adding product. See console for details.');
+        console.error('Fel vid skapande av produkt:', err);
+        setErrorMsg('Något gick fel. Se konsolen för mer info.');
       }
+
+    // Om användaren INTE laddat upp en fil (använder bara text)
     } else {
-      // No file uploaded; send JSON
       const dataToSend = { ...formData, slug: finalSlug };
       try {
         const response = await fetch('http://localhost:3000/api/products', {
@@ -104,10 +113,10 @@ function NewProduct() {
           body: JSON.stringify(dataToSend),
         });
         if (!response.ok) {
-          throw new Error(`Failed to add product, status: ${response.status}`);
+          throw new Error(`Misslyckades att lägga till produkt, status: ${response.status}`);
         }
         const newProduct = await response.json();
-        console.log('Product created:', newProduct);
+        console.log('Produkt skapad:', newProduct);
         setFormData({
           name: '',
           description: '',
@@ -118,96 +127,65 @@ function NewProduct() {
           slug: ''
         });
       } catch (err) {
-        console.error('Error adding product:', err);
-        setErrorMsg('Error adding product. See console for details.');
+        console.error('Fel vid skapande av produkt:', err);
+        setErrorMsg('Något gick fel. Se konsolen för mer info.');
       }
     }
   };
 
+  // Här visas själva formuläret i gränssnittet
   return (
     <div className="new-product">
-      <h2>Create New Product</h2>
+      <h2>Skapa ny produkt</h2>
       {errorMsg && <div className="error-message" style={{ color: 'red' }}>{errorMsg}</div>}
+
       <form onSubmit={handleSubmit}>
         <label>
-          Name (required):
-          <input 
-            name="name" 
-            value={formData.name} 
-            onChange={handleChange} 
-            required 
-          />
+          Namn (obligatoriskt):
+          <input name="name" value={formData.name} onChange={handleChange} required />
         </label>
 
         <label>
-          Description:
-          <input 
-            name="description" 
-            value={formData.description} 
-            onChange={handleChange} 
-          />
+          Beskrivning:
+          <input name="description" value={formData.description} onChange={handleChange} />
         </label>
 
         <label>
-          Price (required):
-          <input 
-            name="price" 
-            type="number" 
-            value={formData.price} 
-            onChange={handleChange} 
-            required 
-          />
+          Pris (obligatoriskt):
+          <input name="price" type="number" value={formData.price} onChange={handleChange} required />
         </label>
 
         <label>
           SKU:
-          <input 
-            name="sku" 
-            value={formData.sku} 
-            onChange={handleChange} 
-          />
+          <input name="sku" value={formData.sku} onChange={handleChange} />
         </label>
 
         <label>
-          Image URL:
-          <input 
-            name="imageUrl" 
-            value={formData.imageUrl} 
-            onChange={handleChange} 
-          />
+          Bild-URL:
+          <input name="imageUrl" value={formData.imageUrl} onChange={handleChange} />
         </label>
 
         <label>
-          Or Upload Image:
-          <input 
-            name="imageFile" 
-            type="file" 
-            accept="image/*" 
-            onChange={handleFileChange} 
-          />
+          Eller ladda upp bild:
+          <input name="imageFile" type="file" accept="image/*" onChange={handleFileChange} />
         </label>
 
         <label>
-          Publish Date:
-          <input 
-            name="publishDate" 
-            type="date" 
-            value={formData.publishDate} 
-            onChange={handleChange} 
-          />
+          Publiceringsdatum:
+          <input name="publishDate" type="date" value={formData.publishDate} onChange={handleChange} />
         </label>
 
         <label>
           Slug:
-          <input 
-            name="slug" 
-            value={formData.slug} 
-            onChange={handleChange} 
-            placeholder="Auto-generated from name if left blank" 
+          <input
+            name="slug"
+            value={formData.slug}
+            onChange={handleChange}
+            placeholder="Skapas automatiskt från namn om tomt"
           />
         </label>
 
-        <button type="submit">Add Product</button>
+        <button type="submit">Lägg till produkt</button>
       </form>
     </div>
   );
