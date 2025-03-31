@@ -1,31 +1,30 @@
 /*****************************************************************************
- *                          productRoutes.ts
+ * 📦 productRoutes.ts
  * 
- * This file handles all product-related CRUD operations, including image 
- * upload via Multer and serving local images as full URLs. It also introduces
- * "quantity" for shopping-cart compatibility.
+ * Här hanteras alla CRUD-operationer för produkter (Create, Read, Update, Delete)
+ * 👉 Vi kan även ladda upp bilder (via Multer) och koppla produkter till en kvantitet.
  *****************************************************************************/
 
-// Import Express router and types for request/response
+// 🚀 Express router & typer för request/response
 import { Router, Request, Response } from 'express';     
 
-// Import Multer (used for handling file uploads)
+// 🖼️ Multer används för att hantera bilduppladdning
 import multer, { StorageEngine } from 'multer';          
 
-// Import your database connection function
+// 🔌 Hämtar funktion för att koppla till databasen
 import { initDB } from '../db';                          
 
 
 /*****************************************************************************
- * Multer setup for file uploads
+ * ⚙️ Multer-setup: Vart bilder ska sparas och vad de ska heta
  *****************************************************************************/
 
 const storage: StorageEngine = multer.diskStorage({
-  // Set upload folder
+  // 📂 Välj mapp för bilder
   destination: (req, file, cb) => {
     cb(null, 'product-images');
   },
-  // Create a unique filename to avoid overwriting
+  // 🧾 Skapa unikt filnamn så att inte gamla filer skrivs över
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     cb(null, uniqueSuffix + '-' + file.originalname);
@@ -35,20 +34,22 @@ const upload = multer({ storage });
 
 
 /*****************************************************************************
- * Helper: generateSlug()
+ * 🧪 Helper: generateSlug()
+ * Skapar en URL-vänlig "slug" av produktnamn
  *****************************************************************************/
 function generateSlug(name: string): string {
   return name
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, '')       // remove special characters
-    .replace(/[\s_-]+/g, '-')       // replace spaces and underscores with dashes
-    .replace(/^-+|-+$/g, '');       // remove leading/trailing dashes
+    .replace(/[^\w\s-]/g, '')       // 🧹 Ta bort specialtecken
+    .replace(/[\s_-]+/g, '-')       // 🔁 Byt ut mellanslag & _ till bindestreck
+    .replace(/^-+|-+$/g, '');       // ✂️ Ta bort bindestreck i början/slutet
 }
 
 
 /*****************************************************************************
- * Helper: transformMultipleImages(product)
+ * 🖼️ Helper: transformMultipleImages(product)
+ * Omvandlar lokala sökvägar till fullständiga bild-URLs
  *****************************************************************************/
 function transformMultipleImages(product: any): any {
   if (!product) return product;
@@ -58,11 +59,11 @@ function transformMultipleImages(product: any): any {
   fields.forEach((field) => {
     if (product[field]) {
       const urlField = field.replace("Path", "Url");
-      // If local path, prefix it with server URL
+      // 🌍 Om det är en lokal sökväg → lägg till localhost
       if (product[field].startsWith('/product-images')) {
         product[urlField] = `http://localhost:3000${product[field]}`;
       }
-      // If it's already a full URL, keep it
+      // 🌐 Om det redan är en full URL → behåll den
       else if (product[field].startsWith('http')) {
         product[urlField] = product[field];
       }
@@ -74,8 +75,8 @@ function transformMultipleImages(product: any): any {
 
 
 /***************************************************************************** 
- *  GET /api/products 
- *  Lists all products, ordering by sortOrder if it exists.
+ * 📥 GET /api/products 
+ * Hämtar alla produkter, sorterade efter sortOrder
  *****************************************************************************/
 async function getAllProducts(req: Request, res: Response): Promise<void> {
   try {
@@ -100,18 +101,17 @@ async function getAllProducts(req: Request, res: Response): Promise<void> {
       ORDER BY sortOrder
     `);
 
-    // Convert image paths to full URLs
-    const transformed = products.map(transformMultipleImages);
-
-    res.json(transformed); // Send to client
+    const transformed = products.map(transformMultipleImages); // 🔁 Gör om bildsökvägar
+    res.json(transformed); // 📤 Skicka till klient
   } catch (error) {
-    console.error("Error fetching products:", error);
+    console.error("❌ Error fetching products:", error);
     res.status(500).json({ error: "Failed to fetch products" });
   }
 }
 
 /***************************************************************************** 
- *  GET /api/products/:slug 
+ * 📥 GET /api/products/:slug 
+ * Hämtar en specifik produkt via dess slug
  *****************************************************************************/
 async function getProductBySlug(req: Request<{ slug: string }>, res: Response): Promise<void> {
   try {
@@ -146,13 +146,14 @@ async function getProductBySlug(req: Request<{ slug: string }>, res: Response): 
     const transformed = transformMultipleImages(product);
     res.json(transformed);
   } catch (error) {
-    console.error('Error fetching product:', error);
+    console.error('❌ Error fetching product:', error);
     res.status(500).json({ error: 'Failed to fetch product' });
   }
 }
 
 /***************************************************************************** 
- *  POST /api/products
+ * ➕ POST /api/products
+ * Skapar en ny produkt
  *****************************************************************************/
 async function createProduct(req: Request, res: Response): Promise<void> {
   try {
@@ -169,8 +170,8 @@ async function createProduct(req: Request, res: Response): Promise<void> {
 
     let finalImagePath = "";
 
-    // Handle file upload OR use image URL from body
-    // @ts-ignore: Multer adds `file` property
+    // 📷 Hantera filuppladdning ELLER extern bildlänk
+    // @ts-ignore: Multer lägger till "file"
     if (req.file) {
       finalImagePath = "/product-images/" + req.file.filename;
     } else if (imageUrl && imageUrl.trim() !== "") {
@@ -182,10 +183,8 @@ async function createProduct(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    // Generate slug if not provided
-    const finalSlug = slug || generateSlug(name);
+    const finalSlug = slug || generateSlug(name); // 🔧 Skapa slug om den saknas
 
-    // Insert new product into DB
     const db = await initDB();
     const result = await db.run(`
       INSERT INTO products 
@@ -203,25 +202,24 @@ async function createProduct(req: Request, res: Response): Promise<void> {
       quantity || 1,
     ]);
 
-    // Fetch the newly inserted product
     const newProduct = await db.get('SELECT * FROM products WHERE id = ?', [result.lastID]);
     const transformed = transformMultipleImages(newProduct);
 
     res.status(201).json(transformed);
   } catch (error) {
-    console.error('Error adding product:', error);
+    console.error('❌ Error adding product:', error);
     res.status(500).json({ error: 'Failed to add product' });
   }
 }
 
 /***************************************************************************** 
- *  PUT /api/products/:slug 
+ * ✏️ PUT /api/products/:slug 
+ * Uppdaterar en befintlig produkt
  *****************************************************************************/
 async function updateProductBySlug(req: Request<{ slug: string }>, res: Response): Promise<void> {
   try {
     const { slug } = req.params;
 
-    // Get updated values from request body
     const {
       name,
       description,
@@ -237,7 +235,7 @@ async function updateProductBySlug(req: Request<{ slug: string }>, res: Response
       sortOrder,
     } = req.body;
 
-    // Helper to clean empty image URLs
+    // 💡 Hjälpfunktion för att rensa tomma bildfält
     function toFinalPath(url?: string): string {
       return url && url.trim() !== '' ? url.trim() : '';
     }
@@ -247,10 +245,8 @@ async function updateProductBySlug(req: Request<{ slug: string }>, res: Response
     const finalImagePath4 = toFinalPath(imageUrl4);
     const finalImagePath5 = toFinalPath(imageUrl5);
 
-    
     const db = await initDB();
 
-    // Update product in the database (only if new value is provided)
     const result = await db.run(`
       UPDATE products
       SET name        = (?, name),
@@ -298,18 +294,18 @@ async function updateProductBySlug(req: Request<{ slug: string }>, res: Response
       return;
     }    
 
-    // Fetch updated product and return it
     const updatedProduct = await db.get('SELECT * FROM products WHERE slug = ?', [slug]);
     const transformed = transformMultipleImages(updatedProduct);
     res.json(transformed);
   } catch (error) {
-    console.error('Error updating product:', error);
+    console.error('❌ Error updating product:', error);
     res.status(500).json({ error: 'Failed to update product' });
   }
 }
 
 /***************************************************************************** 
- *  DELETE /api/products/:slug
+ * 🗑️ DELETE /api/products/:slug
+ * Tar bort en produkt
  *****************************************************************************/
 async function deleteProductBySlug(req: Request<{ slug: string }>, res: Response): Promise<void> {
   try {
@@ -323,22 +319,21 @@ async function deleteProductBySlug(req: Request<{ slug: string }>, res: Response
     }
     res.json({ message: 'Product deleted successfully' });
   } catch (error) {
-    console.error('Error deleting product:', error);
+    console.error('❌ Error deleting product:', error);
     res.status(500).json({ error: 'Failed to delete product' });
   }
 }
 
 /***************************************************************************** 
- *  SETUP ROUTER
+ * 🚦 ROUTER SETUP
+ * Kopplar samman funktionerna med rätt URL-endpoints
  *****************************************************************************/
 const router = Router();
 
-// Define API routes and attach the correct handler functions
-router.get('/', getAllProducts);
-router.get('/:slug', getProductBySlug);
-router.post('/', upload.single('imageFile'), createProduct);
-router.put('/:slug', updateProductBySlug);
-router.delete('/:slug', deleteProductBySlug);
+router.get('/', getAllProducts);                                // Hämta alla
+router.get('/:slug', getProductBySlug);                         // Hämta en
+router.post('/', upload.single('imageFile'), createProduct);    // Skapa ny
+router.put('/:slug', updateProductBySlug);                      // Uppdatera
+router.delete('/:slug', deleteProductBySlug);                   // Radera
 
-// Export this router so it can be used in your server
-export default router;
+export default router; // 📦 Exportera så vi kan använda det i vår server
