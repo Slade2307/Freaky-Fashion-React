@@ -7,7 +7,7 @@
 // som heter OpenParams – med två properties: filename och driver
 
 declare module 'sqlite' {
-  interface OpenParams {
+  interface OpenParams {         // interface = const (TypeScript)
    filename: string; // 🔸 Filnamn där databasen ska sparas (t.ex. './freaky-fashion.db')
    driver: any;      // 🔸 Vilken motor som ska användas för att kommunicera med databasen (oftast sqlite3)
  }

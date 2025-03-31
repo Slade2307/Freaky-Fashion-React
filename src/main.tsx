@@ -6,7 +6,7 @@
 
 
 // 📦 Import från React-biblioteket
-// createRoot används för att "starta" appen i HTML-dokumentet
+// createRoot används för att "starta" appen i HTML-dokumentet (index.html)
 import { createRoot } from 'react-dom/client';
 
 
@@ -22,7 +22,7 @@ import './index.css';
 
 
 // 🧩 Importerar huvudkomponenten "App"
-// App.tsx innehåller alla våra sidor och layout (t.ex. Header, Footer, Routes)
+// (export default "App") från App.tsx innehåller alla våra sidor och layout (t.ex. Header, Footer, Routes)
 import App from './App.tsx';
 
 
@@ -31,11 +31,11 @@ import App from './App.tsx';
 // -----------------------------------------------------------------------------
 
 
-// Vi hämtar HTML-elementet <div id="root"> från index.html
-// Och säger: "rendera React-appen här!"
+// Vi hämtar HTML-elementet <div id="root"> från index.html 
+// Och säger: "rendera React-appen här!"                      (standard att göra i rooten)
 createRoot(document.getElementById('root')!).render(
 
-  // Vi packar in <App /> i <BrowserRouter> för att routing ska funka
+  // Vi wrappar in <App /> i <BrowserRouter> för att routing ska funka
   // Så vi kan gå till olika sidor som /checkout eller /product/:slug
   <BrowserRouter>
     <App />

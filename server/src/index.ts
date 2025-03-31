@@ -36,7 +36,9 @@ app.use(
   cors({
     origin: "*", // tillåter alla domäner (ok i utveckling, ej i produktion!)
     methods: ["GET", "POST", "PUT", "DELETE"], // tillåtna HTTP-metoder
-    allowedHeaders: ["Content-Type", "Authorization"], // vilka headers som får skickas med
+    allowedHeaders: ["Content-Type", "Authorization"], // allowedHeaders: ["Content-Type", "Authorization"], //
+                                             //  👈 Tillåtna "etiketter" i förfrågan – t.ex. vilken typ av data som skickas ("Content-Type") 
+                                             // och eventuell låne-ID ("inloggningstoken varje gång man loggar in till servern") ("Authorization")
   })
 );
 
@@ -47,15 +49,15 @@ app.use(
 
 // Gör så att vi kan använda t.ex. req.body i våra API-routes
 // Detta låter servern förstå inkommande JSON (ex: när du skickar formulär från React)
-app.use(express.json());
+app.use(express.json());   // Säger till Express-servern "var beredd på att ta emot JSON-data i inkommande request."
 
 
 // -----------------------------------------------------------------------------
 // 🖼️ Gör bilder publikt tillgängliga
 // -----------------------------------------------------------------------------
 
-// Låter oss visa produktbilder som sparats i mappen "product-images"
-// Exempel: http://localhost:3000/product-images/jacka.jpg
+// app.use -           Säger: "När någon besöker /product-images i webbläsaren..."
+// express.static  -   Säger till Express att mappen product-images är en "offentlig mapp" = filer där kan visas direkt i webbläsaren.
 app.use('/product-images', express.static('product-images'));
 
 
