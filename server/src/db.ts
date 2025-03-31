@@ -1,61 +1,63 @@
-// So TypeScript knows how to cooperate with sqlite
+// -----------------------------------------------------------------------------
+// TypeScript Declaration
+// -----------------------------------------------------------------------------
+
+// Detta gör så TypeScript förstår hur vi använder sqlite-paketet
+// Vi berättar för TypeScript att när vi använder 'sqlite', så finns det ett objekt
+// som heter OpenParams – med två properties: filename och driver
 
 declare module 'sqlite' {
-   interface OpenParams {
-    filename: string; // Where to save the database file (e.g. './freaky-fashion.db')
-    driver: any;      // What kind of database we use (usually sqlite3.Database)
-  }
-
-
+  interface OpenParams {
+   filename: string; // 🔸 Filnamn där databasen ska sparas (t.ex. './freaky-fashion.db')
+   driver: any;      // 🔸 Vilken motor som ska användas för att kommunicera med databasen (oftast sqlite3)
+ }
 }
 
 // -----------------------------------------------------------------------------
 // Imports
 // -----------------------------------------------------------------------------
 
-
-// It's the part that knows how to read/write to a .db file on your computer
+// Importerar sqlite3 – det är själva motorn som läser och skriver till .db-filer
 import sqlite3 from 'sqlite3';
 
-
-// The 'Open' function helps you talk to the database in an easier way
-// You don’t need to use complicated functions or steps — it's simpler and cleaner
+// Importerar 'open' från sqlite – en hjälpfunktion som förenklar att öppna och använda databasen
 import { open } from 'sqlite';
 
-
 // -----------------------------------------------------------------------------
-// Database Initialization Function
+// Database Initialization Function (initDB)
 // -----------------------------------------------------------------------------
 
 /**
- * Initializes the SQLite database. (Start and prepare the database so it’s ready to be used.)
+* 📦 initDB() – Startar databasen och ser till att den är redo att användas
+* 
+* - Skapar (eller öppnar) en databasfil med namnet 'freaky-fashion.db'.
+* - Ser till att tabellen 'products' finns med rätt struktur (schema).
+*/
 
- * - Connects to (or creates) the 'freaky-fashion.db' file.
- * - Ensures the 'products' table exists with the correct schema.
- */
 export async function initDB() {
-  // Open a connection to the database
-  // If the file doesn't exist, SQLite will create it
-  const db = await open({
-    filename: './freaky-fashion.db',       // Path to the local DB file
-    driver: sqlite3.Database               // Use the sqlite3 driver
-  });
+ // 🔑 Steg 1: Öppna anslutning till databasen
+ // Om filen inte finns, skapas den automatiskt
+ const db = await open({
+   filename: './freaky-fashion.db',       // 🗂️ Plats och namn för databasen
+   driver: sqlite3.Database               // 🚗 Motor som kör databasen (sqlite3)
+ });
 
-  // Create the 'products' table if it doesn't already exist
-  // This table stores all product-related data for the app
-  await db.exec(`
-    CREATE TABLE IF NOT EXISTS products (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,  -- Auto-incrementing unique ID
-      name TEXT NOT NULL,                    -- Product name (required)
-      description TEXT,                      -- Optional description
-      price INTEGER NOT NULL,                -- Price (in smallest currency unit)
-      sku TEXT,                              -- Optional stock keeping unit
-      imageUrl TEXT,                         -- Main product image (URL or local path)
-      publishDate TEXT,                      -- Optional publish date
-      slug TEXT NOT NULL UNIQUE              -- Unique identifier used in URLs
-    )
-  `);
+ // 🔨 Steg 2: Skapa tabellen 'products' om den inte redan finns
+ // Tabellen är som ett Excel-ark där varje rad är en produkt och varje kolumn är en egenskap
 
-  // Return the database instance for use in other parts of the app
-  return db;
+ await db.exec(`
+   CREATE TABLE IF NOT EXISTS products (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,  -- 🔢 Unikt ID som räknas upp automatiskt
+     name TEXT NOT NULL,                    -- 🏷️ Namn på produkten (måste fyllas i)
+     description TEXT,                      -- 📝 Beskrivning (frivillig)
+     price INTEGER NOT NULL,                -- 💰 Pris i t.ex. ören (måste finnas)
+     sku TEXT,                              -- 🧾 Artikelnummer (frivilligt)
+     imageUrl TEXT,                         -- 🖼️ Länk till bild (frivillig)
+     publishDate TEXT,                      -- 📅 Publiceringsdatum (frivilligt)
+     slug TEXT NOT NULL UNIQUE              -- 🌐 Unik "webb-vänlig" identifierare (måste finnas)
+   )
+ `);
+
+ // ✅ Steg 3: Returnerar databasanslutningen så att andra delar av appen kan använda den
+ return db;
 }

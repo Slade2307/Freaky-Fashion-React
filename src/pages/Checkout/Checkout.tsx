@@ -3,55 +3,60 @@
 // Renders the checkout page with customer form and order summary
 // -----------------------------------------------------------------------------
 
-import { useState } from "react";
+import { useState } from "react"; 
+// 📦 useState är en "hook" (inbyggd funktion i React) som låter oss lagra och ändra värden i komponenten.
+
 import { useCart } from "../Cart/CartContext";
+// 🛒 useCart är vår "shoppingkorg-hook" – den ger oss tillgång till cart-data från Context.
+
 import "./Checkout.css";
+// 🎨 Importerar CSS-styling som gäller för kassasidan (checkout)
 
 // -----------------------------------------------------------------------------
 // Type Definitions (used locally for cart calculation)
 // -----------------------------------------------------------------------------
 
 type CartItem = {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  imageUrl?: string;
+  id: number;           // unikt ID för varje produkt
+  name: string;         // produktens namn
+  price: number;        // styckpris
+  quantity: number;     // antal produkter av denna typ
+  imageUrl?: string;    // valfri bild (kan vara undefined)
 };
 
 // -----------------------------------------------------------------------------
-// Checkout Component
+// Checkout Component (själva sidan "Kassan")
 // -----------------------------------------------------------------------------
 
 function Checkout() {
-  const { cart } = useCart();
+  const { cart } = useCart(); 
+  // 🛒 Här hämtar vi varukorgen från Context så vi kan visa den på kassan-sidan
 
- // -----------------------------------------------------------------------------
-// Customer form fields — these store what the user types into the inputs - 
-// useState lets your component remember a value and update it later.
-// -----------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // 🧠 Formulär-fält som lagrar det användaren skriver in
+  // useState låter oss "komma ihåg" det användaren skriver
+  // ---------------------------------------------------------------------------
 
-const [name, setName] = useState("");       // Stores the "Namn" input
-const [email, setEmail] = useState("");     // Stores the "E-post" input
-const [address, setAddress] = useState(""); // Stores the "Adress" input
-const [phone, setPhone] = useState("");     // Stores the "Telefon" input
-
-
-// -----------------------------------------------------------------------------
-// Selected options for shipping and payment
-// -----------------------------------------------------------------------------
-
-const [shippingMethod, setShippingMethod] = useState("standard"); // Default is "standard" shipping
-const [paymentMethod, setPaymentMethod] = useState("card");       // Default is "card" payment
+  const [name, setName] = useState("");       
+  const [email, setEmail] = useState("");     
+  const [address, setAddress] = useState(""); 
+  const [phone, setPhone] = useState("");     
 
 
-  // Calculate total items and total price
+  // ---------------------------------------------------------------------------
+  // 🚚 Val för frakt och betalning
+  // ---------------------------------------------------------------------------
+
+  const [shippingMethod, setShippingMethod] = useState("standard"); 
+  const [paymentMethod, setPaymentMethod] = useState("card");       
+
+  // 🧮 Räknar ut totalt antal produkter och totala priset (före frakt)
   const totalItems = cart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
   const totalPrice = cart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0);
 
-  // Handle form submit
+  // ✉️ Hanterar när formuläret skickas in
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Hindrar sidan från att laddas om
     console.log("Submitting order", {
       name,
       email,
@@ -68,12 +73,13 @@ const [paymentMethod, setPaymentMethod] = useState("card");       // Default is 
       <p className="checkout-subtitle">Antal varor: {totalItems}</p>
 
       <div className="checkout-layout">
-        {/* ---------------------------------------------------------------------
-           LEFT: Checkout Form
-        --------------------------------------------------------------------- */}
+        {/* -------------------------------------------
+            📝 VÄNSTER: Kundens formulär
+        -------------------------------------------- */}
         <form className="checkout-form" onSubmit={handleSubmit}>
           <h2>Kunduppgifter</h2>
 
+          {/* 🧑 Namn */}
           <label htmlFor="name">Namn:</label>
           <input
             id="name"
@@ -83,6 +89,7 @@ const [paymentMethod, setPaymentMethod] = useState("card");       // Default is 
             required
           />
 
+          {/* 📧 E-post */}
           <label htmlFor="email">E-post:</label>
           <input
             id="email"
@@ -92,6 +99,7 @@ const [paymentMethod, setPaymentMethod] = useState("card");       // Default is 
             required
           />
 
+          {/* 🏠 Adress */}
           <label htmlFor="address">Adress:</label>
           <input
             id="address"
@@ -101,6 +109,7 @@ const [paymentMethod, setPaymentMethod] = useState("card");       // Default is 
             required
           />
 
+          {/* 📞 Telefon */}
           <label htmlFor="phone">Telefon:</label>
           <input
             id="phone"
@@ -110,6 +119,7 @@ const [paymentMethod, setPaymentMethod] = useState("card");       // Default is 
             required
           />
 
+          {/* 🚚 Fraktalternativ – radioknappar */}
           <h3>Frakt</h3>
           <div className="shipping-methods">
             <label>
@@ -134,6 +144,7 @@ const [paymentMethod, setPaymentMethod] = useState("card");       // Default is 
             </label>
           </div>
 
+          {/* 💳 Betalmetod */}
           <h3>Betalning</h3>
           <div className="payment-methods">
             <label>
@@ -158,17 +169,19 @@ const [paymentMethod, setPaymentMethod] = useState("card");       // Default is 
             </label>
           </div>
 
+          {/* ✅ Slutför köp-knapp */}
           <button type="submit" className="checkout-button">
             Slutför köp
           </button>
         </form>
 
-        {/* ---------------------------------------------------------------------
-           RIGHT: Order Summary
-        --------------------------------------------------------------------- */}
+        {/* -------------------------------------------
+            🧾 HÖGER: Orderöversikt
+        -------------------------------------------- */}
         <div className="checkout-summary">
           <h2>Orderöversikt</h2>
 
+          {/* 📦 Lista på produkter och totalsumma */}
           <div className="summary-list">
             {cart.map((item) => (
               <div key={item.id} className="summary-row">
@@ -178,6 +191,7 @@ const [paymentMethod, setPaymentMethod] = useState("card");       // Default is 
             ))}
           </div>
 
+          {/* 📬 Visar frakt + total kostnad inkl frakt */}
           <div className="summary-total">
             <div className="summary-row">
               <span>Frakt:</span>
@@ -200,3 +214,4 @@ const [paymentMethod, setPaymentMethod] = useState("card");       // Default is 
 }
 
 export default Checkout;
+// 📤 Exporterar denna komponent så den kan användas i andra delar av appen

@@ -4,57 +4,45 @@
 // -----------------------------------------------------------------------------
 
 import React from "react";
-// Lets us write components using JSX
-// Example:
-// const Hello = () => <h1>Hello world</h1>;
+// 📦 React importeras så att vi kan använda JSX och bygga komponenter (components)
+// JSX = HTML-liknande kod inuti JavaScript
 
 import { Link } from "react-router-dom";
-// Lets us link to other pages without reloading the page
-// Example:
-// <Link to="/cart">Go to Cart</Link>
+// 📍 Link är en React-komponent som låter oss navigera mellan sidor utan att ladda om sidan
+// Det kommer från "react-router" (ett routing-bibliotek)
 
-
-
-// Cart context for managing cart actions and state
 import { useCart } from "../Cart/CartContext";
-// 👆 useCart gives access to cart data and functions like addToCart()
-// Example:
-// const { cart, addToCart } = useCart();
+// 🛒 useCart är en custom hook = funktion som ger tillgång till globala värden
+// Den ger oss tillgång till t.ex. cart, updateQuantity, removeFromCart
 
-
-// Layout components
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-// 👆 Reusable layout components for the top and bottom of the page
-// Example:
-// <Header /> shows the site's top navigation
-// <Footer /> shows the footer at the bottom of the page
+// 🧱 Återanvändbara layoutkomponenter – toppen och botten av sidan (header/footer)
 
-
-// Styles for cart layout
 import "./Cart.css";
+// 🎨 CSS-styling specifikt för denna sida
 
 // -----------------------------------------------------------------------------
 // Cart Component – Shows products added to the shopping cart
 // -----------------------------------------------------------------------------
 
 const Cart: React.FC = () => {
-  // Get cart data and actions from context
+  // 🧠 Här använder vi destrukturering för att plocka ut funktioner och data från context
   const { cart, removeFromCart, updateQuantity, getTotalPrice } = useCart();
 
   return (
     <>
-      {/* Top of the page – site header */}
+      {/* 🔼 Visar sidans toppnavigering */}
       <Header searchTerm="" onSearchChange={() => {}} />
 
       <section className="cart-page">
         <h1>Varukorgen</h1>
 
-        {/* If cart is empty, show message */}
+        {/* 📭 Om varukorgen är tom visas ett meddelande */}
         {cart.length === 0 ? (
           <p className="empty-cart">Din varukorg är tom.</p>
         ) : (
-          // If cart has items, show them in a table
+          // 📋 Annars visas produkterna i en tabell
           <table className="cart-table">
             <thead>
               <tr>
@@ -66,30 +54,32 @@ const Cart: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {/* Loop through all items in cart */}
+              {/* 🔁 Loopa genom alla produkter i varukorgen */}
               {cart.map((item) => (
                 <tr key={item.id}>
                   <td className="cart-product">
-                    {/* Product image and name */}
+                    {/* 🖼️ Visar produktens bild och namn */}
                     <img src={item.imageUrl} alt={item.name} className="cart-image" />
                     <span>{item.name}</span>
                   </td>
                   <td>
-                    {/* Quantity input field */}
+                    {/* 🔢 Inputfält för att ändra antal */}
                     <input
                       type="number"
                       value={item.quantity}
                       min="1"
                       onChange={(e) => {
-                        const value = Math.max(1, Number(e.target.value)); // Prevent values below 1
-                        updateQuantity(item.id, value); // Update quantity in cart
+                        const value = Math.max(1, Number(e.target.value));
+                        // 🛡️ Säkerställer att antal inte blir mindre än 1
+                        updateQuantity(item.id, value);
+                        // 🔄 Anropar funktionen som uppdaterar antalet i context (globalt)
                       }}
                     />
                   </td>
                   <td>{item.price} SEK</td>
                   <td>{(item.price * item.quantity).toFixed(2)} SEK</td>
                   <td>
-                    {/* Remove product from cart */}
+                    {/* 🗑️ Knapp för att ta bort en produkt från varukorgen */}
                     <button className="remove-btn" onClick={() => removeFromCart(item.id)}>
                       Ta bort
                     </button>
@@ -100,7 +90,7 @@ const Cart: React.FC = () => {
           </table>
         )}
 
-        {/* If cart has items, show total price and checkout button */}
+        {/* 💳 Om det finns produkter visas totalsumma och "Till kassan"-knapp */}
         {cart.length > 0 && (
           <div className="cart-summary">
             <h2>Totalt: {getTotalPrice()} SEK</h2>
@@ -111,11 +101,11 @@ const Cart: React.FC = () => {
         )}
       </section>
 
-      {/* Bottom of the page – site footer */}
+      {/* 🔽 Visar sidfoten längst ner */}
       <Footer />
     </>
   );
 };
 
 export default Cart;
-
+// 📤 Exporterar Cart-komponenten så att andra filer kan importera och använda den
