@@ -1,41 +1,63 @@
-// Inline module declaration for 'sqlite'
+// -----------------------------------------------------------------------------
+// TypeScript Declaration
+// -----------------------------------------------------------------------------
+
+// Detta gör så TypeScript förstår hur vi använder sqlite-paketet
+// Vi berättar för TypeScript att när vi använder 'sqlite', så finns det ett objekt
+// som heter OpenParams – med två properties: filename och driver
+
 declare module 'sqlite' {
   interface OpenParams {
-    filename: string;
-    driver: any;
-  }
-  export function open(config: OpenParams): Promise<any>;
+   filename: string; // 🔸 Filnamn där databasen ska sparas (t.ex. './freaky-fashion.db')
+   driver: any;      // 🔸 Vilken motor som ska användas för att kommunicera med databasen (oftast sqlite3)
+ }
 }
 
+// -----------------------------------------------------------------------------
+// Imports
+// -----------------------------------------------------------------------------
+
+// Importerar sqlite3 – det är själva motorn som läser och skriver till .db-filer
 import sqlite3 from 'sqlite3';
+
+// Importerar 'open' från sqlite – en hjälpfunktion som förenklar att öppna och använda databasen
 import { open } from 'sqlite';
 
+// -----------------------------------------------------------------------------
+// Database Initialization Function (initDB)
+// -----------------------------------------------------------------------------
+
 /**
- * Initializes the SQLite database.
- * Opens or creates 'freaky-fashion.db' and ensures the products table exists.
- */
+* 📦 initDB() – Startar databasen och ser till att den är redo att användas
+* 
+* - Skapar (eller öppnar) en databasfil med namnet 'freaky-fashion.db'.
+* - Ser till att tabellen 'products' finns med rätt struktur (schema).
+*/
+
 export async function initDB() {
-  // Open or create the database file at the specified path.
-  // The path is relative to the working directory where the server is started.
-  const db = await open({
-    filename: './freaky-fashion.db',
-    driver: sqlite3.Database
-  });
+ // 🔑 Steg 1: Öppna anslutning till databasen
+ // Om filen inte finns, skapas den automatiskt
+ const db = await open({
+   filename: './freaky-fashion.db',       // 🗂️ Plats och namn för databasen
+   driver: sqlite3.Database               // 🚗 Motor som kör databasen (sqlite3)
+ });
 
-  // Create the products table if it doesn't exist.
-  // The table includes columns for all product fields including a unique slug.
-  await db.exec(`
-    CREATE TABLE IF NOT EXISTS products (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      description TEXT,
-      price INTEGER NOT NULL,
-      sku TEXT,
-      imageUrl TEXT,
-      publishDate TEXT,
-      slug TEXT NOT NULL UNIQUE
-    )
-  `);
+ // 🔨 Steg 2: Skapa tabellen 'products' om den inte redan finns
+ // Tabellen är som ett Excel-ark där varje rad är en produkt och varje kolumn är en egenskap
 
-  return db;
+ await db.exec(`
+   CREATE TABLE IF NOT EXISTS products (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,  -- 🔢 Unikt ID som räknas upp automatiskt
+     name TEXT NOT NULL,                    -- 🏷️ Namn på produkten (måste fyllas i)
+     description TEXT,                      -- 📝 Beskrivning (frivillig)
+     price INTEGER NOT NULL,                -- 💰 Pris i t.ex. ören (måste finnas)
+     sku TEXT,                              -- 🧾 Artikelnummer (frivilligt)
+     imageUrl TEXT,                         -- 🖼️ Länk till bild (frivillig)
+     publishDate TEXT,                      -- 📅 Publiceringsdatum (frivilligt)
+     slug TEXT NOT NULL UNIQUE              -- 🌐 Unik "webb-vänlig" identifierare (måste finnas)
+   )
+ `);
+
+ // ✅ Steg 3: Returnerar databasanslutningen så att andra delar av appen kan använda den
+ return db;
 }

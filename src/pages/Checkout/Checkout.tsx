@@ -1,38 +1,70 @@
+// -----------------------------------------------------------------------------
 // src/pages/Checkout/Checkout.tsx
-import { useState } from "react";
+// Renders the checkout page with customer form and order summary
+// -----------------------------------------------------------------------------
+
+import { useState } from "react"; 
+// 📦 useState är en "hook" (inbyggd funktion i React) som låter oss lagra och ändra värden i komponenten.
+
 import { useCart } from "../Cart/CartContext";
+// 🛒 useCart är vår "shoppingkorg-hook" – den ger oss tillgång till cart-data från Context.
+
 import "./Checkout.css";
+// 🎨 Importerar CSS-styling som gäller för kassasidan (checkout)
+
+// -----------------------------------------------------------------------------
+// Type Definitions (used locally for cart calculation)
+// -----------------------------------------------------------------------------
 
 type CartItem = {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  imageUrl?: string;
+  id: number;           // unikt ID för varje produkt
+  name: string;         // produktens namn
+  price: number;        // styckpris
+  quantity: number;     // antal produkter av denna typ
+  imageUrl?: string;    // valfri bild (kan vara undefined)
 };
 
+// -----------------------------------------------------------------------------
+// Checkout Component (själva sidan "Kassan")
+// -----------------------------------------------------------------------------
+
 function Checkout() {
-  const { cart } = useCart();
+  const { cart } = useCart(); 
+  // 🛒 Här hämtar vi varukorgen från Context så vi kan visa den på kassan-sidan
 
-  // Basic form fields (expand as needed)
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
-  const [phone, setPhone] = useState("");
+  // ---------------------------------------------------------------------------
+  // 🧠 Formulär-fält som lagrar det användaren skriver in
+  // useState låter oss "komma ihåg" det användaren skriver
+  // ---------------------------------------------------------------------------
 
-  // Shipping or payment selections
-  const [shippingMethod, setShippingMethod] = useState("standard");
-  const [paymentMethod, setPaymentMethod] = useState("card");
+  const [name, setName] = useState("");       
+  const [email, setEmail] = useState("");     
+  const [address, setAddress] = useState(""); 
+  const [phone, setPhone] = useState("");     
 
-  // Calculate total items and total price
+
+  // ---------------------------------------------------------------------------
+  // 🚚 Val för frakt och betalning
+  // ---------------------------------------------------------------------------
+
+  const [shippingMethod, setShippingMethod] = useState("standard"); 
+  const [paymentMethod, setPaymentMethod] = useState("card");       
+
+  // 🧮 Räknar ut totalt antal produkter och totala priset (före frakt)
   const totalItems = cart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
   const totalPrice = cart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0);
 
-  // Example submit handler
+  // ✉️ Hanterar när formuläret skickas in
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Validate & handle order submission here
-    console.log("Submitting order", { name, email, address, phone, shippingMethod, paymentMethod });
+    e.preventDefault(); // Hindrar sidan från att laddas om
+    console.log("Submitting order", {
+      name,
+      email,
+      address,
+      phone,
+      shippingMethod,
+      paymentMethod,
+    });
   };
 
   return (
@@ -41,10 +73,13 @@ function Checkout() {
       <p className="checkout-subtitle">Antal varor: {totalItems}</p>
 
       <div className="checkout-layout">
-        {/* LEFT: Checkout form */}
+        {/* -------------------------------------------
+            📝 VÄNSTER: Kundens formulär
+        -------------------------------------------- */}
         <form className="checkout-form" onSubmit={handleSubmit}>
           <h2>Kunduppgifter</h2>
 
+          {/* 🧑 Namn */}
           <label htmlFor="name">Namn:</label>
           <input
             id="name"
@@ -54,6 +89,7 @@ function Checkout() {
             required
           />
 
+          {/* 📧 E-post */}
           <label htmlFor="email">E-post:</label>
           <input
             id="email"
@@ -63,6 +99,7 @@ function Checkout() {
             required
           />
 
+          {/* 🏠 Adress */}
           <label htmlFor="address">Adress:</label>
           <input
             id="address"
@@ -72,6 +109,7 @@ function Checkout() {
             required
           />
 
+          {/* 📞 Telefon */}
           <label htmlFor="phone">Telefon:</label>
           <input
             id="phone"
@@ -81,6 +119,7 @@ function Checkout() {
             required
           />
 
+          {/* 🚚 Fraktalternativ – radioknappar */}
           <h3>Frakt</h3>
           <div className="shipping-methods">
             <label>
@@ -105,6 +144,7 @@ function Checkout() {
             </label>
           </div>
 
+          {/* 💳 Betalmetod */}
           <h3>Betalning</h3>
           <div className="payment-methods">
             <label>
@@ -129,14 +169,19 @@ function Checkout() {
             </label>
           </div>
 
+          {/* ✅ Slutför köp-knapp */}
           <button type="submit" className="checkout-button">
             Slutför köp
           </button>
         </form>
 
-        {/* RIGHT: Order summary */}
+        {/* -------------------------------------------
+            🧾 HÖGER: Orderöversikt
+        -------------------------------------------- */}
         <div className="checkout-summary">
           <h2>Orderöversikt</h2>
+
+          {/* 📦 Lista på produkter och totalsumma */}
           <div className="summary-list">
             {cart.map((item) => (
               <div key={item.id} className="summary-row">
@@ -145,12 +190,12 @@ function Checkout() {
               </div>
             ))}
           </div>
+
+          {/* 📬 Visar frakt + total kostnad inkl frakt */}
           <div className="summary-total">
             <div className="summary-row">
               <span>Frakt:</span>
-              <span>
-                {shippingMethod === "express" ? "99.00" : "49.00"} SEK
-              </span>
+              <span>{shippingMethod === "express" ? "99.00" : "49.00"} SEK</span>
             </div>
             <div className="summary-row total">
               <strong>Totalt:</strong>
@@ -169,3 +214,4 @@ function Checkout() {
 }
 
 export default Checkout;
+// 📤 Exporterar denna komponent så den kan användas i andra delar av appen

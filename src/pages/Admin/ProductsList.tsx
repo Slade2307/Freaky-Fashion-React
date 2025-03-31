@@ -1,6 +1,7 @@
 // src/pages/Admin/ProductsList.tsx
 import React, { useEffect, useState } from 'react';
 import './ProductsList.css';
+// 🎨 Laddar CSS-styling som gäller just denna sidan
 
 type Product = {
   id: number;
@@ -53,7 +54,7 @@ function ProductsList() {
         setLoading(false);
       }
     })();
-  }, []);
+  }, []); // [] = bara körs en gång vid sidladdning
 
   // ─────────────────────────────────────────────
   // DRAG & DROP HANDLERS
@@ -62,10 +63,12 @@ function ProductsList() {
     e.dataTransfer.setData("text/plain", dragIndex.toString());
   }
 
+  // Tillåt släpp
   function handleDragOver(e: React.DragEvent<HTMLTableRowElement>) {
     e.preventDefault(); // allow drop
   }
 
+  // Hantera släpp
   async function handleDrop(e: React.DragEvent<HTMLTableRowElement>, dropIndex: number) {
     e.preventDefault();
     const dragIndex = Number(e.dataTransfer.getData("text/plain"));
@@ -73,13 +76,13 @@ function ProductsList() {
 
     // 1) Locally reorder
     setProducts((prev) => {
-      const newArr = [...prev];
-      const [removed] = newArr.splice(dragIndex, 1);
-      newArr.splice(dropIndex, 0, removed);
+      const newArr = [...prev]; // Kopiera arrayen
+      const [removed] = newArr.splice(dragIndex, 1); // Ta bort den dragna
+      newArr.splice(dropIndex, 0, removed); // Sätt in på ny plats
 
       // 2) Update each product's sortOrder in local state
       newArr.forEach((p, i) => {
-        p.sortOrder = i; // e.g. 0, 1, 2, ...
+        p.sortOrder = i;
       });
 
       // 3) Persist the new order to server
@@ -92,19 +95,18 @@ function ProductsList() {
             body: JSON.stringify({ sortOrder: prod.sortOrder }),
           });
         } catch (err) {
-          console.error("Error updating sortOrder for:", prod.slug, err);
+          console.error("Kunde inte uppdatera sortering för:", prod.slug);
         }
       });
 
-      return newArr;
+      return newArr; // Uppdatera tillståndet
     });
   }
-  // ─────────────────────────────────────────────
 
   // Handle "Edit"
   function handleEdit(product: Product) {
-    setEditingSlug(product.slug);
-    setEditFormData(product);
+    setEditingSlug(product.slug);   // Markera vilken produkt som redigeras
+    setEditFormData(product);       // Fyll i redigeringsformuläret
   }
 
   // Handle form changes
@@ -119,6 +121,7 @@ function ProductsList() {
   // Save changes with a PUT request
   async function handleSave() {
     if (!editingSlug) return;
+
     try {
       const response = await fetch(`http://localhost:3000/api/products/${editingSlug}`, {
         method: 'PUT',
@@ -129,11 +132,13 @@ function ProductsList() {
         throw new Error('Failed to update product');
       }
       const updatedProduct = await response.json();
+      // Uppdatera listan med det nya värdet
       setProducts((prev) =>
         prev.map((p) => (p.slug === editingSlug ? updatedProduct : p))
       );
-      setEditingSlug(null);
-      setEditFormData({});
+
+      setEditingSlug(null);     // Avsluta redigering
+      setEditFormData({});      // Töm formulär
     } catch (err) {
       console.error('Update error:', err);
       alert('Error updating product');
@@ -148,7 +153,8 @@ function ProductsList() {
 
   // Delete product with a DELETE request
   async function handleDelete(slug: string) {
-    if (!window.confirm('Are you sure you want to delete this product?')) return;
+    if (!window.confirm('Vill du verkligen ta bort produkten?')) return;
+
     try {
       const response = await fetch(`http://localhost:3000/api/products/${slug}`, {
         method: 'DELETE',
@@ -166,6 +172,7 @@ function ProductsList() {
   if (loading) return <div>Loading products...</div>;
   if (error) return <div>{error}</div>;
 
+  // 📦 UI: visar produkter i en tabell
   return (
     <div className="products-list">
       <h2>All Products</h2>
@@ -187,9 +194,12 @@ function ProductsList() {
             <th>Actions</th>
           </tr>
         </thead>
+
+        {/* En rad för varje produkt */}
         <tbody>
           {products.map((product, index) => {
             const isEditing = editingSlug === product.slug;
+
             return (
               <tr
                 key={product.id}
@@ -201,18 +211,10 @@ function ProductsList() {
                 {/* Main image thumbnail */}
                 <td>
                   {isEditing ? (
-                    <input
-                      name="imageUrl"
-                      value={editFormData.imageUrl ?? ''}
-                      onChange={handleChange}
-                    />
+                    <input name="imageUrl" value={editFormData.imageUrl ?? ''} onChange={handleChange} />
                   ) : (
                     product.imageUrl ? (
-                      <img
-                        src={product.imageUrl}
-                        alt={product.name}
-                        style={{ width: '50px', height: 'auto' }}
-                      />
+                      <img src={product.imageUrl} alt={product.name} style={{ width: '50px' }} />
                     ) : 'No image'
                   )}
                 </td>
@@ -299,6 +301,7 @@ function ProductsList() {
                     product.name
                   )}
                 </td>
+
                 <td className="description-cell">
                   {isEditing ? (
                     <input
@@ -310,6 +313,7 @@ function ProductsList() {
                     product.description
                   )}
                 </td>
+
                 <td>
                   {isEditing ? (
                     <input
@@ -321,6 +325,7 @@ function ProductsList() {
                     product.sku
                   )}
                 </td>
+
                 <td>
                   {isEditing ? (
                     <input
@@ -333,7 +338,9 @@ function ProductsList() {
                     `${product.price} SEK`
                   )}
                 </td>
+
                 <td>{product.slug}</td>
+
                 <td>
                   {isEditing ? (
                     <input
@@ -370,3 +377,4 @@ function ProductsList() {
 }
 
 export default ProductsList;
+// 📤 Exporterar komponenten så andra filer kan använda den

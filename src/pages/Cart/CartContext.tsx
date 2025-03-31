@@ -1,5 +1,20 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
- 
+// -----------------------------------------------------------------------------
+// CartContext.tsx
+// This file keeps track of what's in the shopping cart
+// -----------------------------------------------------------------------------
+
+import { createContext, useContext, useState, ReactNode } from "react";
+
+// createContext – lets us share data with many components (like the cart)
+// useContext – lets us use that shared data
+// useState – lets us save and change values (like item count)
+// ReactNode – allows us to show child elements inside a component
+
+
+// -----------------------------------------------------------------------------
+// What a product in the cart looks like
+// -----------------------------------------------------------------------------
+
 type CartItem = {
   id: number;
   name: string;
@@ -7,31 +22,31 @@ type CartItem = {
   quantity: number;
   imageUrl?: string;
 };
- 
+
+// -----------------------------------------------------------------------------
+// What the cart can do
+// -----------------------------------------------------------------------------
+
 type CartContextType = {
-  cart: CartItem[];
-  addToCart: (product: CartItem) => void;
-  updateQuantity: (id: number, quantity: number) => void;
-  removeFromCart: (id: number) => void;
-  clearCart: () => void;
-  getTotalPrice: () => number;
+  cart: CartItem[];                         // List of items
+  addToCart: (product: CartItem) => void;   // Add new item
+  updateQuantity: (id: number, quantity: number) => void; // Change amount
+  removeFromCart: (id: number) => void;     // Remove item
+  clearCart: () => void;                    // Empty cart
+  getTotalPrice: () => number;              // Total cost
 };
- 
-const CartContext = createContext<CartContextType | undefined>(undefined);
- 
+
+// -----------------------------------------------------------------------------
+// Create and set up the cart context
+// -----------------------------------------------------------------------------
+
+export const CartContext = createContext<CartContextType | undefined>(undefined);
+
+// Wrap around your app so cart works everywhere
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  // Initialize cart from localStorage
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    const storedCart = localStorage.getItem("cart");
-    return storedCart ? JSON.parse(storedCart) : [];
-  });
- 
-  // Sync cart to localStorage on update
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
- 
-  // Add item to cart
+  const [cart, setCart] = useState<CartItem[]>([]); // Start with an empty cart
+
+  // Add item to cart (or increase quantity if already in cart)
   const addToCart = (product: CartItem) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === product.id);
@@ -45,8 +60,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return [...prevCart, product];
     });
   };
- 
-  // Update quantity
+
+  // Change how many of an item there is
   const updateQuantity = (id: number, quantity: number) => {
     setCart((prevCart) =>
       prevCart.map((item) =>
@@ -54,33 +69,43 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       )
     );
   };
- 
-  // Remove item from cart
+
+  // Remove an item completely
   const removeFromCart = (id: number) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== id));
   };
- 
-  // Clear entire cart
+
+  // Clear all items from cart
   const clearCart = () => {
     setCart([]);
-    localStorage.removeItem("cart"); // Clear from localStorage as well
   };
- 
-  // Get total price
+
+  // Calculate the total price of all items
   const getTotalPrice = () => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   };
- 
+
+  // Make all cart functions available to the app
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, updateQuantity, removeFromCart, clearCart, getTotalPrice }}
+      value={{
+        cart,
+        addToCart,
+        updateQuantity,
+        removeFromCart,
+        clearCart,
+        getTotalPrice,
+      }}
     >
       {children}
     </CartContext.Provider>
   );
 };
- 
-// Custom Hook for easy usage
+
+// -----------------------------------------------------------------------------
+// Custom hook to use the cart anywhere in the app
+// -----------------------------------------------------------------------------
+
 export const useCart = (): CartContextType => {
   const context = useContext(CartContext);
   if (!context) {
