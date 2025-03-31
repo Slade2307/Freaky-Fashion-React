@@ -1,7 +1,11 @@
+
 // -----------------------------------------------------------------------------
 // useCart.tsx
 // Manages cart state globally using React Context
 // -----------------------------------------------------------------------------
+
+=======
+// useCart.tsx
 
 import { createContext, useContext, useState, ReactNode } from "react";
 // 🧠 Vi importerar React-verktyg (från frameworket React)
