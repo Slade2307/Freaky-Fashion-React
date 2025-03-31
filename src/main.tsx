@@ -1,29 +1,43 @@
 // -----------------------------------------------------------------------------
 // main.tsx
-// This is where your React app starts running --             (((NOTE: Component = Reusable building block for your website or app. Ex. "createRoot", "BrowserRouter")))
+// 🧠 Startfilen för hela React-appen
+// Härifrån "kickar" allt igång och laddas in i webbläsaren
 // -----------------------------------------------------------------------------
 
-// createRoot is used to start the React app
+
+// 📦 Import från React-biblioteket
+// createRoot används för att "starta" appen i HTML-dokumentet
 import { createRoot } from 'react-dom/client';
 
-// BrowserRouter lets you use routes (e.g. /cart, /checkout)
+
+// 🌍 BrowserRouter = React Router (routing-system)
+// Den här komponenten gör att vi kan använda olika URL:er som t.ex. /cart eller /checkout
+// utan att sidan laddas om varje gång (Single Page Application)
 import { BrowserRouter } from 'react-router-dom';
 
-// Global CSS styles for the app
+
+// 🎨 Importerar globala CSS-stilar för hela appen
+// Detta gör så att t.ex. bakgrundsfärg, typsnitt osv. gäller överallt
 import './index.css';
 
-// Main App component that holds all your pages and layout
+
+// 🧩 Importerar huvudkomponenten "App"
+// App.tsx innehåller alla våra sidor och layout (t.ex. Header, Footer, Routes)
 import App from './App.tsx';
 
+
 // -----------------------------------------------------------------------------
-// Render the React app inside the HTML element with id="root"
-// We also wrap it in BrowserRouter so routing works
+// 🚀 Här startar själva appen och säger "rendera detta i HTML-elementet med id='root'"
 // -----------------------------------------------------------------------------
 
+
+// Vi hämtar HTML-elementet <div id="root"> från index.html
+// Och säger: "rendera React-appen här!"
 createRoot(document.getElementById('root')!).render(
-  // BrowserRouter lets us navigate between pages like /cart or /product/123
-  <BrowserRouter> 
-    <App /> 
+
+  // Vi packar in <App /> i <BrowserRouter> för att routing ska funka
+  // Så vi kan gå till olika sidor som /checkout eller /product/:slug
+  <BrowserRouter>
+    <App />
   </BrowserRouter>
 );
-

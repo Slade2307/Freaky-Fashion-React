@@ -2,62 +2,87 @@
 // Basic Express Server Setup with CORS and Product API Routes
 // -----------------------------------------------------------------------------
 
-// Import Express framework and request/response types
-import express, { Request, Response } from 'express';
 
-// Import CORS middleware to allow frontend requests from different origins
+// -----------------------------------------------------------------------------
+// 🔧 Importerar bibliotek vi behöver
+// -----------------------------------------------------------------------------
+
+import express, { Request, Response } from 'express'; 
+// express = ett populärt backend framework för att bygga API:er och servrar
+// Request & Response = typer för att hantera inkommande och utgående data
+
 import cors from 'cors';
+// cors = ett "middleware" (mellanlager) som tillåter kommunikation mellan frontend & backend
+// ex: React på port 5173 pratar med server på port 3000
 
-// Import the product-related routes from your routes folder
 import productRouter from './routes/productRoutes';
+// importerar våra produkt-relaterade API-routes (GET, POST osv.)
 
-// Create the Express app
-const app = express();
-
-// Define the port the server will run on
-const PORT = 3000;
 
 // -----------------------------------------------------------------------------
-// Enable CORS (Cross-Origin Resource Sharing)
+// 🚀 Skapar vår Express-app
 // -----------------------------------------------------------------------------
-// This allows your frontend (e.g., React app) to communicate with the backend
-// even if they are hosted on different ports (like 5173 and 3000)
+
+const app = express();         // startar själva servern
+const PORT = 3000;             // vilken port servern ska köras på (http://localhost:3000)
+
+
+// -----------------------------------------------------------------------------
+// 🔓 Aktiverar CORS så frontend kan prata med backend
+// -----------------------------------------------------------------------------
+
+// Gör det möjligt för webbsidan (React) att skicka/ta emot data från backend (Express)
 app.use(
   cors({
-    origin: "*", // Allow requests from any domain (for development)
-    methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
-    allowedHeaders: ["Content-Type", "Authorization"], // Allowed request headers
+    origin: "*", // tillåter alla domäner (ok i utveckling, ej i produktion!)
+    methods: ["GET", "POST", "PUT", "DELETE"], // tillåtna HTTP-metoder
+    allowedHeaders: ["Content-Type", "Authorization"], // vilka headers som får skickas med
   })
 );
 
-// -----------------------------------------------------------------------------
-// Middleware to parse incoming JSON request bodies
-// -----------------------------------------------------------------------------
-// This allows you to access JSON data from the frontend using req.body
-app.use(express.json());
 
 // -----------------------------------------------------------------------------
-// Serve static files (images) from the "product-images" folder
+// 🧠 Middleware: Parsar JSON-data från frontend
 // -----------------------------------------------------------------------------
-// Example: http://localhost:3000/product-images/shirt.jpg
+
+// Gör så att vi kan använda t.ex. req.body i våra API-routes
+// Detta låter servern förstå inkommande JSON (ex: när du skickar formulär från React)
+app.use(express.json());
+
+
+// -----------------------------------------------------------------------------
+// 🖼️ Gör bilder publikt tillgängliga
+// -----------------------------------------------------------------------------
+
+// Låter oss visa produktbilder som sparats i mappen "product-images"
+// Exempel: http://localhost:3000/product-images/jacka.jpg
 app.use('/product-images', express.static('product-images'));
 
 
+// -----------------------------------------------------------------------------
+// 👋 Start-route för rotsidan "/"
+// -----------------------------------------------------------------------------
 
-// This is just a friendly message when someone visits the root URL
+// Om någon går till http://localhost:3000 visas detta meddelande
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello from the backend! Access the product API at /api/products');
 });
 
 
-// Mount the product API routes under /api/products
+// -----------------------------------------------------------------------------
+// 🛒 Kopplar in våra produkt-routes
+// -----------------------------------------------------------------------------
 
-// This means all routes defined in productRoutes.ts will start with /api/products
+// Alla endpoints i productRoutes (t.ex. GET, POST) nås via /api/products
+// Exempel: GET http://localhost:3000/api/products
 app.use('/api/products', productRouter);
 
+
 // -----------------------------------------------------------------------------
-// Start the server
+// ✅ Startar själva servern
 // -----------------------------------------------------------------------------
+
+// När servern körs visas ett meddelande i terminalen
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

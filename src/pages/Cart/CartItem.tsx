@@ -1,50 +1,59 @@
 // -----------------------------------------------------------------------------
 // src/pages/Cart/CartItem.tsx
-// Renders a single cart item with quantity input and remove button
+// 🧩 Visar EN vara i varukorgen – med bild, namn, antal och ta bort-knapp
 // -----------------------------------------------------------------------------
 
-// This line brings in React so we can build components.
+
+// 📦 Importerar React så vi kan använda JSX och bygga komponenter
 import React from "react";
 
-// This line imports the "useCart" hook from your CartContext file. 
-// useCart gives you access to the cart — like what's in the cart, and functions like add/remove items.
-import { useCart } from "./CartContext"; // Adjust the path if your file is in a different folder
+
+// 🧠 useCart = custom hook som ger oss tillgång till varukorgens data och funktioner
+// T.ex. ändra antal, ta bort vara, hämta pris etc.
+import { useCart } from "./CartContext"; // Anpassa sökvägen om filen flyttas
 
 
 
-// Define the structure (or shape) of a single item in the cart
+// -----------------------------------------------------------------------------
+// 📐 TYPE: CartItemType – beskriver hur en vara i varukorgen ska se ut
+// -----------------------------------------------------------------------------
+// Det är som ett "kontrakt" som säger: varje vara måste ha id, namn, pris m.m.
 type CartItemType = {
-  id: number;             // Unique ID for the product
-  name: string;           // Product name
-  price: number;          // Price of one item
-  quantity: number;       // How many the user wants
-  imageUrl?: string;      // (Optional) Image of the product
+  id: number;             // Unikt ID (t.ex. 101)
+  name: string;           // Namnet på produkten
+  price: number;          // Pris per styck
+  quantity: number;       // Hur många användaren vill ha
+  imageUrl?: string;      // (valfritt) Bild på produkten
 };
 
-// -----------------------------------------------------------------------------
-// Define what the CartItem component should receive as input (properties)
-// -----------------------------------------------------------------------------
 
-// This interface describes what data the CartItem component needs as a "prop" (input).
-// It expects an object called "item" that must follow the CartItemType structure.
+// -----------------------------------------------------------------------------
+// 📐 INTERFACE: CartItemProps – vad komponenten behöver som "prop" (in-data)
+// -----------------------------------------------------------------------------
+// Vi säger att CartItem-komponenten förväntar sig ett objekt som följer CartItemType
 interface CartItemProps {
-  item: CartItemType; // A single product in the cart
+  item: CartItemType; // Produkten som ska visas
 }
 
-// The CartItem component shows one item in the shopping cart.
+
+// -----------------------------------------------------------------------------
+// 🧩 CartItem Component
+// Visar en vara i varukorgen med bild, namn, pris och möjligheten att ändra antal eller ta bort den
+// -----------------------------------------------------------------------------
+// React.FC betyder att detta är en "functional component"
 const CartItem: React.FC<CartItemProps> = ({ item }) => {
-  // Get cart functions to update quantity or remove item
+  // 🧠 useCart ger oss tillgång till funktionerna från context
   const { updateQuantity, removeFromCart } = useCart();
 
-  // Runs when user changes quantity
+  // 🔁 När man ändrar antalet i inputfältet
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newQuantity = Math.max(1, Number(e.target.value)); // Avoid 0 or negative numbers
-    updateQuantity(item.id, newQuantity); // Update cart with new quantity
+    const newQuantity = Math.max(1, Number(e.target.value)); // Undvik att skriva 0 eller minus
+    updateQuantity(item.id, newQuantity); // Uppdatera antalet i varukorgen
   };
 
   return (
     <div className="cart-item">
-      {/* Product image (or "no image" if missing) */}
+      {/* 📸 Bild på produkten (eller "No image" om ingen bild finns) */}
       <div className="cart-item-image">
         {item.imageUrl ? (
           <img src={item.imageUrl} alt={item.name} />
@@ -53,13 +62,13 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
         )}
       </div>
 
-      {/* Product name, price, quantity input, and remove button */}
+      {/* 🛍️ Info om produkten + möjlighet att ändra antal eller ta bort */}
       <div className="cart-item-details">
         <h3>{item.name}</h3>
         <p>Price: {item.price} SEK</p>
 
         <div className="cart-item-actions">
-          {/* Quantity input */}
+          {/* 🔢 Inputfält för att skriva in antal */}
           <input
             type="number"
             min={1}
@@ -67,7 +76,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
             onChange={handleQuantityChange}
           />
 
-          {/* Button to remove this item from cart */}
+          {/* ❌ Knapp för att ta bort produkten från varukorgen */}
           <button className="remove-btn" onClick={() => removeFromCart(item.id)}>
             Remove
           </button>
@@ -77,6 +86,5 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
   );
 };
 
+// Exporterar komponenten så att andra filer kan använda <CartItem />
 export default CartItem;
-
-
