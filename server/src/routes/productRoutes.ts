@@ -330,10 +330,10 @@ async function deleteProductBySlug(req: Request<{ slug: string }>, res: Response
  *****************************************************************************/
 const router = Router();
 
-router.get('/', getAllProducts);                                // Hämta alla
-router.get('/:slug', getProductBySlug);                         // Hämta en
-router.post('/', upload.single('imageFile'), createProduct);    // Skapa ny
-router.put('/:slug', updateProductBySlug);                      // Uppdatera
+router.get('/', getAllProducts);                                // Hämta/ fetch alla  "Visa hela menyn" 🍽️
+router.get('/:slug', getProductBySlug);                         // Hämta en    "Visa info om just 'blå suit'" 🧥
+router.post('/', upload.single('imageFile'), createProduct);    // Skapa ny     "Lägg till ny rätt i menyn, med bild" 📷🍝
+router.put('/:slug', updateProductBySlug);                      // Uppdatera  
 router.delete('/:slug', deleteProductBySlug);                   // Radera
 
 export default router; // 📦 Exportera så vi kan använda det i vår server
